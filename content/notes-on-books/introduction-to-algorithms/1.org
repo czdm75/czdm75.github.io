@@ -49,9 +49,7 @@
 
 按照定义进行的矩阵乘法:
 
-\[
-C_{ij}=\sum_{k=1}^{n}a_{ik}\cdot b_{kj}
-\]
+\[C_{ij}=\sum_{k=1}^{n}a_{ik}\cdot b_{kj}\]
 
 复杂度为 \(\Theta(n^3)\)，在此不做过多叙述。
 
@@ -179,27 +177,19 @@ Permute-by-sorting. 具体做法是：对于输入序列，生成一个相同长
 
 我们首先来尝试计算得到最好面试者的概率。设最好面试者在第 \(i\) 个且被我们取到的事件为 \(S_i\)，考虑到前 \(k\) 个面试者直接被我们排除掉，其中，当 \(i\leqslant k\) 时，不可能取到最佳面试者。于是，取得最好面试者的概率密度函数为：
 
-\[
-\Pr\{S\}=\sum_{i=1}^n\Pr\{S_i\}=\sum_{i=k+1}^n\Pr\{S\}
-\]
+\[\Pr\{S\}=\sum_{i=1}^n\Pr\{S_i\}=\sum_{i=k+1}^n\Pr\{S\}\]
 
 接下来求 \(\Pr\{S_i\}\)。当 \(S_i\) 发生时，第一，应聘者应该在第 \(i\) 个位置。第二， \(k\) 到 \(i-1\) 范围内的所有值全部小于前 \(k\) 个中的最大者。这两个事件是独立的。对于第二个事件，将其转化为：从 \(1\) 到 \(i-1\) 范围内的最大值出现在前 \(k\) 个中。这个概率为 \(k/(i-1)\)，故
 
-\[
-\Pr\{S\}=\sum_{i=k+1}^n\frac k{n(i-1)}=\frac kn\sum_{i=k}^{n-1}\frac 1i
-\]
+\[\Pr\{S\}=\sum_{i=k+1}^n\frac k{n(i-1)}=\frac kn\sum_{i=k}^{n-1}\frac 1i\]
 
 又，利用积分来近似约束这个和数，有：
 
-\[
-\int_k^n\frac 1x\mathrm dx \leqslant \sum_{i=k}^{n-1}\frac 1i\leqslant\int_{k-1}^{i-1}\frac 1x\mathrm dx
-\]
+\[\int_k^n\frac 1x\mathrm dx \leqslant \sum_{i=k}^{n-1}\frac 1i\leqslant\int_{k-1}^{i-1}\frac 1x\mathrm dx\]
 
 求解可以得到下面的上下界：
 
-\[
-\frac kn(\ln n-\ln k) \leqslant \Pr\{S\}\leqslant\frac kn(\ln(n-1)-\ln(k-1))
-\]
+\[\frac kn(\ln n-\ln k) \leqslant \Pr\{S\}\leqslant\frac kn(\ln(n-1)-\ln(k-1))\]
 
 以 \(k\) 为未知数求导。当 \(k=\frac ne\) 时，下界取得最大值。
 
