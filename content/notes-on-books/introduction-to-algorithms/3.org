@@ -1,4 +1,4 @@
-#+TITLE: Other Sorting, Hash, BST
+#+TITLE: 3. Other Sorting, Hash, BST
 #+MATH: true
 
 * 非比较排序

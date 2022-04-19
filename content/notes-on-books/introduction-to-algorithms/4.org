@@ -1,4 +1,4 @@
-#+TITLE: Balanced BST, Trie-Tree
+#+TITLE: 4. Balanced BST, Trie-Tree
 #+MATH: true
 
 * 红黑树

@@ -32,7 +32,7 @@ BFS 可以发现两个结点间的最短路径。
 强连通分量是指任何两个节点都能从正逆两个方向连通的一个分量。可以由 DFS 获得。在下面的算法中，我们以这样一个图为例：
 
 #+caption: 一个图的例子
-[[/img/201802/introduction_algorithm_chap22_diagram.png]]
+[[../chap22_diagram.png]]
 
 *** Kosaraju 算法
 
@@ -41,7 +41,7 @@ BFS 可以发现两个结点间的最短路径。
 以上面的图为例。在从 0 开始的 DFS 中，得到的完成时间序列从晚到早将会是：0,1,2,3,4,5。在如下的反向图中，以同样的顺序进行 DFS ，将会首先得到 0,1,2 这棵树。然后，开启第二次 DFS ，从 序列中下一个结点：3 开始，得到另一个强连通分量。
 
 #+caption: 反向图
-[[/img/201802/introduction_algorithm_chap22_diagram_reverse.png]]
+[[../chap22_diagram_reverse.png]]
 
 *** Tarjan 算法
 
