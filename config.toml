@@ -18,4 +18,8 @@ path = 'github.com/alex-shpak/hugo-book'
   [markup.tableOfContents]
     endLevel = 6
     startLevel = 1
+  [markup.highlight]
+    style = 'solarized-light'
+    lineNos = true
+
 
