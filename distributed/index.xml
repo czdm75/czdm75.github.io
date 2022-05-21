@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Distributed Systems on czdm75 Blog</title><link>/distributed/</link><description>Recent content in Distributed Systems on czdm75 Blog</description><generator>Hugo -- gohugo.io</generator><atom:link href="/distributed/index.xml" rel="self" type="application/rss+xml"/><item><title>Hadoop Basic Concepts</title><link>/distributed/hadoop-basic/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/distributed/hadoop-basic/</guid><description>Hadoop 基本概念 # HDFS # 功能特性 # 向各种计算框架开放文件读写端口，适合大文件、一次写入多次读取的存储。
+仅支持单线程 append 写，不支持随机多线程访问。
+结构 # HDFS Client # 与 NameNode 交互，获取文件 Block 所在结点等信息
+切分文件为 Block
+与 DataNode 交互，实际传输文件
+其他管理 HDFS 的工作
+NameNode # 作为集群的 Master，管理名称空间
+管理 Block 的映射信息
+配置副本策略
+处理 Client 的读写请求
+NameNode 是整个 HDFS 最重要的部分，在 Hadoop 2.</description></item><item><title>Spark RDD Programming</title><link>/distributed/spark-rdd/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/distributed/spark-rdd/</guid><description>Spark RDD 编程 # 使用数据集 # 并行化集合 # 可以使用 Spark Context 的方法对数组进行并行化，以在其上并行地进行操作。
+val data = Array(1, 2 ,3, 4, 5) val distData = sc.parallelize(data) distData.reduce((a, b) =&amp;gt; a + b) sc.parallelize(data, 10) // 10 partitions 进行并行化的一个重要参数就是将集合进行切分的分区（Partition）数量。通常，比较好的数字是每个逻辑核心 2 ~ 4 个分区，Spark 会自动进行划分。如上，也可以手动指定分区的数量。
+外部数据集：文本文件 # Spark 可以为任何被 Hadoop 支持的存储方式上创建分布式的数据集，包括 HDFS，Cassandra，Hbase，Amazon S3，以及本地存储等等。它也支持文本文件或 Hadoop 的各种 InputFormat。
+文本文件的数据集可以使用 Spark Context 的 textFile 方法来读取。这个方法接收一个文件的 URI，并作为行的集合读取进来。
+val distFile = sc.textFile(&amp;#34;data.txt&amp;#34;) // distFile: org.apache.spark.rdd.RDD[String] = data.</description></item><item><title>Spark SQL Programming</title><link>/distributed/spark-sql/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/distributed/spark-sql/</guid><description>Spark SQL Programming # Basic # DataFrame # # standalone from pyspark.sql import SparkSession spark = SparkSession \ .builder \ .appName(&amp;#34;Python Spark SQL basic example&amp;#34;) \ .config(&amp;#34;spark.some.config.option&amp;#34;, &amp;#34;some-value&amp;#34;) \ .getOrCreate() # in pyspark repl spark = SQLContext(sc) # json file content: # {&amp;#34;name&amp;#34;:&amp;#34;Michael&amp;#34;} # {&amp;#34;name&amp;#34;:&amp;#34;Andy&amp;#34;, &amp;#34;age&amp;#34;:30} # {&amp;#34;name&amp;#34;:&amp;#34;Justin&amp;#34;, &amp;#34;age&amp;#34;:19} df = spark.read.json(&amp;#34;examples/src/main/resources/people.json&amp;#34;) # missing value is null df.show() df.printSchema() df.select(&amp;#34;name&amp;#34;).show() # prints a column of data df.</description></item></channel></rss>

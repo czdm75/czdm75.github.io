@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>czdm75 Blog</title><link>/</link><description>Recent content on czdm75 Blog</description><generator>Hugo -- gohugo.io</generator><atom:link href="/index.xml" rel="self" type="application/rss+xml"/><item><title>1. Basic OOP</title><link>/notes/core-java-impatient/1/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/core-java-impatient/1/</guid><description>第一章 基本的编程结构 # 基本类型和变量 # 数字 # 4 字节整型 int 约正负 21 亿，8字节整型 long 约正负 9×10^19，约 900 千亿。4 字节浮点数 float 约 6 位有效数字，范围至正负 10^38 ；8 字节浮点数 double 约 15 位有效数字，范围至正负 10^308。
+Integer Byte Short Long Double Float 均有 MAX_VALUE 和 MIN_VALUE 成员变量，指示其边界范围。Float 和 Double 还有 NaN、POSITIVE_INFINITY 和 NEGATIVE_INFINITY 三个静态变量。NaN 之间互不相等。
+Java 还提供了 BigInteger 和 BigDemical 两个类，尤其适用于金融。
+在部分机器上，如 Intel x86平台，使用 80 bit 的浮点单元来提高浮点运算的精度。如果需要严格的 64 bit 浮点运算，可以在方法前加上 strictfp 修饰符。另外几个不常见的关键字是与多线程有关的 volatile，与序列化有关的 transient 和与跨语言调用有关的 native。此外，StrictMath 类也提供了类似的功能。</description></item><item><title>1. Basics</title><link>/notes/programming-scala/1/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/programming-scala/1/</guid><description>入门 # apply 方法 # 对于代码：
+val arr = Array(&amp;#34;a&amp;#34;, &amp;#34;b&amp;#34;) arr(0) arr(0) = &amp;#34;c&amp;#34; 实际上是调用了：
+val arr = Array.apply(&amp;#34;a&amp;#34;, &amp;#34;b&amp;#34;) arr.apply(0) arr.update(0, &amp;#34;c&amp;#34;) 列表 # Scala 默认的 List 是 Immutable 的。可以对列表进行拼接：
+val l = List(1, 2) 1 :: l // List(1, 1, 2) l ::: l // List(1, 2, 1, 2) l :: l // List(List(1, 2), 1, 2) 首先，由于 List 是 Immutable 的，所以所有的拼接操作都返回一个新的 List。
+三冒号的写法比较容易理解：它将两个列表连接起来。对于双冒号，则是将前面的元素与后面的列表连接起来。在第四行代码中，由于双冒号前面的元素被作为一个对象来操作，因此得到的是一个具有嵌套结构的 Any 列表。</description></item><item><title>1. Compexity, Divide</title><link>/notes/intro-algo/1/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/intro-algo/1/</guid><description>代价分析和复杂度 # 示例与概念 # 例子：插入排序 例子：归并排序 最坏情况分析 vs 平均情况分析 函数增长的渐进记号 # $O(n)$, $\Theta(n)$, $\Omega(n)$ 表示函数增长的上界、上下界、下界 $o(n)$, $\omega(n)$ 表示不紧确的上下界 常用 $T(n)$ 表示所需的实际时间的函数 分析分治算法，以归并排序为例 # 归并排序最坏运行时间的递归式：
+$$ T(n)= \begin{cases} \Theta(1) &amp;amp; \text{if } n=1 \cr 2T(n/2) + \Theta(n) &amp;amp; \text{if } n&amp;gt;1 \end{cases} $$
+除使用主定理外，还可以这样理解递归式的值：将递归过程看做一个二叉树。递归调用中的每一层的总代价均为 $cn$，其中 $c$ 为常数。而二叉树的层数应为 $\log_2n+1$，故整个算法的代价期望为 $\Theta(n\log_2n)$。
+分治法 # 分治法求最大和的子数组 # 分解。将数组划分为两个子数组。此时，只存在三种子数组：
+全部位于中点左侧的子数组 全部位于中点右侧的子数组 跨越中点的子数组 解决。</description></item><item><title>2. Functions</title><link>/notes/programming-scala/2/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/programming-scala/2/</guid><description>函数和闭包 # 局部函数 # 通常，对于小的 &amp;ldquo;工具函数&amp;rdquo;，我们会使用私有函数来处理：
+object Util { def a(): Unit = { val a = 1; // sth b(a) } private def b(i: Int): Unit { // do sth print(i) } } 通过私有函数，我们避免了 b 函数对整个 Util 对象的调用者的污染。不过，对于 Util 本身的编写者来说，如果 b 函数没有别的用处，仍然有些污染视线。因此，可以：
+object Util { def a(): Unit = { val a = 1; // do sth def b(): Unit = { // do sth print(a) } b() } } 与上面的实现的区别是，因为作用域共享，我们无需为 b 设定参数，它可以直接访问外面的 a 变量。</description></item><item><title>2. Interface, Lambda</title><link>/notes/core-java-impatient/2/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/core-java-impatient/2/</guid><description>接口 # 在 cast 之前，先使用 instanceof 进行检查。 继承接口 # public interface Closable { void close(); } public interface Channel extends Closable { boolean isOpen(); } 那么，实现 Channel 接口的类必须实现两个方法。
+静态方法和默认方法 # 接口中的静态方法是后来才加入到 Java 中的。在这种语法出现之前，这些方法被放到伴随类中。例如，Collection 接口和 Collections 类。接口中的静态方法，意味着这个方法是属于这个接口类型的。因此，必须提供实现。调用时，使用 Interface.method。
+可以为方法提供默认的实现，在方法前加上 default 关键字即可。除了提供默认实现之外，这种方式还提供了不同版本间接口变化的可能性。例如，Collection 接口现在新加入了一个有默认方法体的 Stream 方法。如果引入的 class 文件是以前编译的，即其不包含 Stream 方法，将抛出 AbstractMethodError 异常。
+在实现多个接口时，可能存在默认方法的冲突。（如果两个接口都不提供默认方法体，因为我们只会实现一个，所以不存在冲突。如果有一个默认方法体，即使另一个方法不提供默认的，也属于冲突情况，因为非默认的方法可能被默认的覆盖。）这时，编译器会报错。我们需要自己解决冲突的情况。
+public class Employee implements Person, Identified { public int getId() { // 调用父类型的方法 return Identified.</description></item><item><title>2. Sorting, Order Statistic</title><link>/notes/intro-algo/2/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/intro-algo/2/</guid><description>排序算法 # 原地排序 (in place) ：仅需要常数的额外存储空间
+堆排序：$O(n\log_2n)$ 的原地排序算法
+快速排序：期望为 $\Theta(n\log_2n)$，最坏情况为 $\Theta(n^2)$，实际应用中通常比堆排序快。同时，其常数系数很小，是排序大数组时的常用算法。
+比较排序：通过对元素进行比较来决定，快排、归并、堆排序都是比较排序。比较排序的代价下界为 $\Omega(n\log_2n)$。
+线性时间排序：计数排序、基数排序、桶排序，在一定条件下，可以取得线性时间代价。
+算法 最坏情况代价 代价期望 插入排序 $\Theta(n^2)$ $\Theta(n^2)$ 归并排序 $\Theta(n\log_2n)$ $\Theta(n\log_2n)$ 堆排序 $O(n\log_2n)$ 快速排序 $\Theta(n^2)$ $\Theta(n\log_2n)$ 计数排序 $\Theta(k+n)$ $\Theta(k+n)$ 基数排序 $\Theta(d(k+n))$ $\Theta(d(k+n))$ 桶排序 $\Theta(n^2)$ $\Theta(n)$ 堆排序 # 复杂度为 $O(n\log_2n)$，常数个额外空间（原地排序）。</description></item><item><title>3 .Inheritance, Package, Assertion</title><link>/notes/programming-scala/3/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/programming-scala/3/</guid><description>Scala 的层级 # Scala 继承层级 # Any 类定义了以下的方法：
+final def ==(that: Any): Boolean final def !=(that: Any): Boolean def equals(that: Any): Boolean def hashCode: Int def toString: String 其中 == != 方法是 final 的，它们的取值取决于 equals 方法。因此，Scala 中可以使用 == 来比较 Integer String 和其他对象。
+Any 有两个子类：AnyVal AnyRef。其中 AnyVal 有九个子类，包括 Java 的八种基本类型和 Unit。这些类都不能用 new 来创建，而必须使用字面量。实际上，这些类都是 abstract final 的，所以无法使用 new。Unit 则只有一个值，写作 ()。
+AnyVal 的子类被称为值类型，它们之间可以隐式地互相转换。之前提到过，它们还可以隐式地转换为对应的 Rich 类以支持 until range max 等更多操作。值类型在编译之后将会变成基本类型而不是他们对应的装箱类型，这样做能够带来一些性能提升。Scala 在这里做的事情和 Java 5 的自动装箱很相似。另外一个类 AnyRef 实际上就是 java.</description></item><item><title>3. Inheritance, Reflection</title><link>/notes/core-java-impatient/3/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/core-java-impatient/3/</guid><description>继承 # Java 中的 super 不是另一个对象的引用，而是绕过动态查找方法的指令。相比之下，this 是一个指向本身的引用。 在方法引用中可以使用 super。new Thread(super::work).start(); 重载方法不能改变参数。可以使用 @Override 让编译器进行检查。 子类无法访问父类的 private 成员。因此，应该在构造时调用父类的构造函数。super(params); 如果一个类的父类中有一个实例方法，实现的接口中有一个同名的默认方法。与接口冲突的情况不同，在这里，父类方法永远先于接口的实现。这是为了与旧版本代码的兼容。 final 方法不能被覆盖，final 类不能被继承。 里氏代换原则 # 里氏代换原则是指，一个父类对象可以出现的位置，也可以放置一个子类对象。
+因此，子类重载的方法可以返回父类方法返回值的子类。这被叫做协变返回类型。
+Java 的数组同样是协变的。也就是说，一个父类数组引用可以指向一个一个子类数组对象。因此，可能存在这样的问题：
+Son[] sons = new Son[0]; Father fathers = sons; fathers[0] = new Father(...) // Exception: ArrayStoreException 在这里，fathers 指向的实际上是一个 Son 类的数组，其中只能存储 Son 类的对象。因此，这里出现了一个编译时无法发现的错误。为了避免这种问题，应当限制协变数组的作用域。
+抽象类 # 抽象类的某些方法被声明为抽象的：
+abstract class Person { private String id; public Person(String name); public abstract int getId(); } 和接口的区别是，抽象类可以拥有实例变量和构造函数。实现上，我们认为，抽象类是一个可以被具体化的模型，而接口代表的是某一个功能，二者的意义是有区别的。因此，类是单继承的，接口是可以多继承的。</description></item><item><title>3. LinkedList, HashTable</title><link>/notes/intro-algo/3/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/intro-algo/3/</guid><description>链表 # 链表的哨兵结点 # 链表的哨兵结点表示 nil 值，其 prev 属性指向表尾，next 属性指向表头。这样，就可以省略掉 head 属性，并简化边界条件的处理。如果我们使用的是很多个很短的链表，哨兵结点就会造成比较严重的存储浪费。
+不使用指针的链表 # 多数组的实现：对于双向链表，至少使用 3 个数组，分别为 prev、key、next，其值即为所指向对象的数组下标。每个数组相同下标的值合起来是一个完整的结点对象。
+单数组的实现：以一整个数组连续存储对象，使用下标代表指针。当需要访问对象的成员时，在指针上加一个偏移量。相对于多数组的实现，这种方式就可以支持不同长度的对象构成的链表。
+自由表：未被使用的，可能是之前被释放的内存单元组成的链表。。数组表示中的每一个对象不是在链表中，就一定在自由表中。实现上，自由表常常是一个链表栈。刚刚被释放的空间，在下一次插入中就会被用来存储新的对象。显然，多个链表也可以共用同一个自由表。使用自由表的释放操作和插入操作运行代价仍然是 $O(1)$，因此非常实用。
+有根树的表示 # 对于分叉数量未知的树，我们难以使用数组来储存孩子结点的指针。或者，如果最大孩子数很大，那么使用相同数量的指针空间将会浪费大量的存储空间。因此，在这里引入左孩子右兄弟表示法。
+在这样表示的树中，每一个结点有三个指针：父结点，左孩子指针和一个兄弟指针，兄弟指针指向它右侧的具有同一个父结点的结点。同一个父结点的所有孩子结点实际上相当于构成一个链表。如果是最右子结点，就把兄弟指针设置为 nil。
+散列函数 # 散列函数所需要的最基本性质是，尽量让 key 进入各个槽的概率平均。除此之外，还可能需要一些其他的性质。比如，可能希望相接近的关键字的散列值差距较大，在开放寻址法进行线性探查时需要这种性质，而这种性质由全域散列提供。此外，还可能需要把其他种类的关键字，或负数、浮点数等转换成自然数等。
+除法散列 # 最简单的除法散列适用于平均分布的自然数序列。被除数选择不接近 2 的整数幂的较大的质数有利于散列。如对于一个预备存储 2000 个元素的散列表，可取 $h(k) = k \mod 701$。
+乘法散列 # 用关键字乘一个常数，通常为一个无理数，取小数部分，再乘上一个值，取整变回自然数。如：
+$$ h(k) = \lfloor m(kA \mod 1) \rfloor $$</description></item><item><title>4. BST, Balanced BSTs</title><link>/notes/intro-algo/4/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/intro-algo/4/</guid><description>二叉搜索树 # 对一个二叉搜索树，任何一个结点的左子结点不大于它本身，右子结点不小于它本身。这样，就可以简单地使用中序遍历查找元素。中序遍历打印出来的序列，就是已经排序完成的序列。中序遍历的时间代价为 $\Theta(n)$。
+二叉搜索树的基本操作 # 在高 $h$ 的树上，以下操作的时间代价均为 $O(h)$。
+查找：比较和当前结点的大小，选择子树。 最大和最小：不断取左子结点或右子结点。 深度优先遍历的方式：
+前序遍历 中序遍历 后序遍历 后继前驱 # 如果关键字不重复，那么一个结点的中序遍历后继为大于这个结点的最小者，即升序序列中的下一个。如果结点的右子树非空，那么右树中的最左结点即为后继结点，不断向左寻找即可。
+如果右子树为空，说明这个结点是某个左子树的最右结点，而这个左子树的父结点即为后继结点。这意味着，遍历这个结点之后，这个左子树遍历完成，进入某个遍历过程的根结点部分。于是，不断向上寻找，如果当前结点不再是右结点，说明已经找到了这个根结点。如果找到了 $nil$，则说明没有后继，这个结点是整个树的最右结点。
+前驱和后继的过程对称，时间代价均为 $O(h)$。
+插入和删除 # 插入过程比较简单。寻找结点的关键字应该在的位置，并修改父结点的指针即可。
+删除结点可分为三种情况：
+没有子结点，直接删除并修改父结点的指针即可。 只有一个孩子，则用这个孩子来替代这个结点。 两个孩子，则使用后继结点来替代这个结点。由于被删除的这个后继结点是右子树的最左结点，其一定没有左子节点。因此，使用其右子节点代替它的位置，并用这个节点代替待删除的结点。于是，删除完成。 显然，这两种操作的时间代价也是 $O(h)$。
+随机构建二叉搜索树 # 二叉搜索树的构建由插入和删除操作完成。显然，实际情况中，这是一个随机过程。在最坏情况下，当元素严格升序或降序插入，二叉搜索树将成为一个链表。十分显而易见的是，在完全随机的情况下，元素均匀插入，二叉树接近完全，其高度的期望为 $O(\log_2n)$。
+红黑树 # 性质 # 一个基于二叉搜索树增加一个颜色属性的树，保证没有任何路径会比另一条路径长出二倍的近似平衡树。
+每个结点是红色或黑色的 根结点是黑色的 每个叶子结点都是黑色的 如果一个结点是红色的，则其两个子结点都是黑色的 对每个结点，从该结点到其所有后代叶结点的简单路径上，均包含相同树木的黑色结点。 性质 5 是红黑树的核心：红黑树是一颗近似平衡二叉树。
+为了避免叶子结点的空间浪费，可以指定一个哨兵结点为 NIL，并使所有叶子都指向这一个结点。通常忽略叶子结点，因为其并不储存 key 值。
+定义任何一个结点的黑高为从该结点到其后代叶子结点的路径上黑色结点的数目。根据性质 5，任何一条简单路径的黑高都相同。一颗有 $n$ 个内部结点的红黑树的高度至多为 $2\log_2(n+1)$。</description></item><item><title>4. Exception, Logging</title><link>/notes/core-java-impatient/4/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/core-java-impatient/4/</guid><description>异常 # 异常对象 # RuntimeException 和 CheckedException 继承于 Exception，Exception 和 Error 继承于 Throwable。Error 和 RuntimeException 均属于 Unchecked Exception。
+Checked Exception 和 Unchecked Exception 在意义上是存在区别的。例如，有关 IO 和类加载的异常大多是 Checked Exception，因为编写代码时无法判断该异常会不会发生。唯一的办法是捕获并处理它。相比之下，类似 NumberFormatException 这一类异常的发生是可以在代码中进行避免的。因此，属于 Unchecked Exception，需要在代码中进行预防而非捕获。
+如果调用可能抛出 Checked Exception，就需要在方法头声明，以便找到最终最适合处理的位置。对于 lambda 表达式也同理。如果 lambda 表达式可能抛出 Checked Exception，就无法被传给一个不抛出异常的函数式接口。好在，大多数情况下，抛出的异常都适合在 lambda 表达式里捕获处理。
+在编写自定义的异常类时，建议至少提供两个构造方法：一个无参的方法和一个接受消息字符串的方法。
+异常捕获 # 多种异常 # 对于需要处理多种异常的情况，可以分别或一起捕获：
+try { ... } catch (ExceptionClass | ExceptionClazz ex) { ex.fun()... } catch (ExClass ex) { .</description></item><item><title>4. Pattern Matching, Collections</title><link>/notes/programming-scala/4/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/programming-scala/4/</guid><description>模式匹配 # 样例类 case class # abstract class Expr case class Number(num: Double) extends Expr case class UnOp(operator: String, arg: Expr) extends Expr case class BinOp(operator: String, left: Expr, right: Expr) extends Expr Scala 为一个 case class 提供了包括：
+一个 apply 工厂方法，等同于 def apply(num: Double) = new Number(num) 一系列字段。等同于 val num: Double 正确实现的 toString equals hashCode 方法 一个 copy 方法，这个方法可以接收参数以产生部分不同的新对象。 最重要的是，样例类可以进行模式匹配。
+模式 # 通配模式 case _ 匹配任何对象，用于缺省捕获。 常量模式 case 1 仅匹配自己，也就是 equals 返回真值的对象。包括数字、字符串、单例对象、val 值等都可以。 变量模式 case e 变量模式也匹配任何对象，但这个变量名在后续的表达式中是有意义的，可以进行进一步处理。在区分常量模式和变量模式时，Scala 简单地使用首字母来判断。如果首字母是大写，就认为常量。必要时可以选择转义。 构造器模式 case BinOp(&amp;quot;+&amp;quot;, e, Number(0)) 构造器可以进行深度匹配，例如这里嵌套的 Number 对象。 序列模式 case List(0, a, _) 元组模式 case (0, a, _) 类型模式 case m: Map[_, _] 在 Scala 中推荐使用类型匹配而非 isInstanceOf[String] asInstanceOf[String] 来判断类型。 变量绑定 case BinOp(&amp;quot;-&amp;quot;, v @ Number(1), _) v 可以作为变量使用。这样可以在变量模式的基础上进行匹配。 常量和变量的匹配顺序规则如下：大写开头作为常量，小写开头作为变量，加转义则变回常量，这是考虑常量的值是作用域中某个变量的情况。大写开头的变量则不被支持。</description></item><item><title>5. Generics</title><link>/notes/core-java-impatient/5/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/core-java-impatient/5/</guid><description>使用泛型 # 泛型方法 # public class Arrays { public static &amp;lt;T&amp;gt; void swap(T[] array int i, int j) { ... } } // call Arrays.swap(arr, 1 ,2); Arrays.&amp;lt;String&amp;gt; swap(arr, 1, 2); // for better error message 类型限定 # // for an arraylist public static &amp;lt;T extends AutoClosable&amp;gt; void closeAll(ArrayList&amp;lt;T&amp;gt; elems) throws Exception { for (T elem : elems) elem.close(); // an method in interface AutoClosable } //for an array, no need for generic public static void closeAll(AutoClosable[] elems) throws Exception { .</description></item><item><title>5. Generics, Abstract, Implicits</title><link>/notes/programming-scala/5/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/programming-scala/5/</guid><description>类型参数化 # 一个摊还 O(1) 复杂度的函数式队列 # 函数式数据结构通常期望使用递归来进行操作并避免状态的暴露，这让编程模型更优雅统一，但同时，与随机访问的数据结构相比，会将复杂度从 O(1) 提高到 O(n)。不过，通过一系列精妙的设计，函数式的数据结构同样可以具有高性能。虽然这方面的研究尚不完善，但 Scala 混合编程范式的特点让我们能够比较容易地做到这一点。
+首先我们简单地使用列表来实现一个队列。由于列表是前追加的数据结构，我们的第一反应是使用一个翻过来的列表：
+class SlowHeadQueue[T](elems: List[T]) { def head = elems.last def tail = new SlowHeadQueue(elems.init) def enqueue(x: T) = new SlowHeadQueue(x :: elems) } 这个数据结构 enqueue 是 O(1) 的，而 head 和 tail 是 O(n) 的。但是，我们可以考虑将 head 操作和 tail 操作分开，即使用两个背对背的列表来处理。
+class Queue[T](private val leading: List[T], private val trailing: List[T]) { private def mirror = if (leading.</description></item><item><title>5. Trie-Tree, Extending Data Structures</title><link>/notes/intro-algo/5/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/intro-algo/5/</guid><description>Trie 树（前缀树） # 前缀树的结构是这样的：每个结点的一个分支代表一位数据。这里的一位不一定是一个 bit，也可以是一个字符等，因为前缀树经常被用在字符串处理，如输入时的提示。在这里，节点内部并不需要保存 key，因为其所有位都已经表示在了路径上。
+如果每一个分支不只保存一个位，将唯一子树与其父节点合并，就变成了基数树。基数树需要保存的路径信息变多了，但不再使用无用的结点。
+Huffman 编码 # Huffman 编码就是一种使用前缀的编码方法，其核心是前缀树的构建。Huffman 编码采用这样的基于概率的前缀构建：将所有可能的值作为叶子，并不断合并频率和最小的两个节点，最终构成一颗二叉前缀树。
+树构建完成之后，在每一个节点，以左侧为 0，右侧为 1，构建前缀编码。Huffman 编码是最优的前缀编码。类似地，自顶向下构建前缀树，在每一步尽量使两侧概率相等的编码方式称为 Shannon-Fano 编码，这种方法不一定总能得到最优编码。
+数据结构的扩展 # 在这里，数据结构的扩展指的是在原有数据结构上做出一些修改，使得其能够支持更多的特性。这些修改包括设计新的操作，以及增加可能的域。
+动态顺序统计 # 为了获得一个集合里每个元素的次序，在红黑树结点的基础上增加一个域 size，用于保存以这个节点为根的子树的总结点数。即顺序统计量。定义中序遍历的顺序为这个元素的秩。
+给定秩，寻找相应的元素。从根出发，左子树的 size+1 就是这个节点所在的位置。判断和输入的大小关系，选择子树继续寻找。
+给定元素寻找秩的过程与之相反。从这个节点回溯到根，将所有的左子树 size+1 加起来，就是这个结点的秩。两种查找的复杂度均为 $O(\log_2n)$。
+为了维护 size 域的值，在每一次插入和删除时，都需要回溯至根来修改，复杂度为 $O(\log_2n)$。此外，当发生旋转时，也要分别修改 size。修改的复杂度为 $O(1)$，所以插入和删除的复杂度不变，仍为 $O(\log_2n)$。
+区间树 # 接下来，我们以红黑树为基础，构建一个可以保存区间对象的数据结构，以展示如何进行数据结构的扩展。
+基础数据结构：每个节点包含一个区间信息，并以区间的低端点作为其关键字。
+附加信息：每个节点额外维护一个值 max，它是以这个节点为根的子树中的所有区间端点的最大值。
+对信息的维护：每个结点的 max 为 max(x.int.high, x.left.max, x.right.max)。于是，更新这个属性的复杂度为 $O(\log_2n)$。实际上，操作的复杂度只有 $O(1)$。
+设计新的操作：查找与指定区间相交的区间。在查找时，如果左子结点的 max 大于查找目标的左端点，说明左子树中有重叠的部分，则进入左子树继续查找。</description></item><item><title>6. Collections, Extractor, etc</title><link>/notes/programming-scala/6/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/programming-scala/6/</guid><description>List 与 ListBuffer # Scala 的 List 是一个 sealed abstract class，有两个子类：:: 和 Nil。其中 Nil 是一个 case object。所以，不能直接使用 new List()，只能通过 List.apply() 来调用 :: 类。由于 Nil extends List[Nothing] 且 List 是协变的，它能兼容任何列表类型。
+::（cons, construct）类表示有元素的列表。它的构造接收两个参数，即列表的 head 元素和 tail 列表。然后，List 类中定义了这样的方法。要记得以冒号结尾的操作符是右结合的，所以：
+def :: [B &amp;gt;: A](elem: B): List[B] = new ::(elem, this) 使得 1 :: 2 :: Nil 这样的构造方式得以实现。
+现在我们再来考虑类型问题。从结果上来说，一些不同类型的对象进行 :: 操作，最终得到的结果应当是一个以其公共父类为类型参数的列表。这里通过上面这个方法的类型参数得以实现。当：
+apple :: List(orange) 这里的 :: 方法在 List(orange) 上被调用，那么上面的类型参数 A 是 Orange，B 则 应该是 A 的一个父类型。又因为接收的参数也是 B 类型，所以最终 B 被决定为 Fruit 类型。</description></item><item><title>6. Collections, Streams</title><link>/notes/core-java-impatient/6/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/core-java-impatient/6/</guid><description>集合 # Collections.nCopies(n, o) 返回一个特殊的内部类 Coolections$CopiesList，能够作为多个拷贝的 List 来使用，但实际只存储一份。 Queue 是一个队列，Deque 是双向队列。 鼓励在代码中使用接口。如 List&amp;lt;T&amp;gt; l = new ArrayList&amp;lt;&amp;gt;()。 同样地，在编写有关集合的代码时，尽量使用接口作为参数，以扩大适用范围。 Collections 的一些静态方法 # 静态方法 功能 boolean disjoint(Collection&amp;lt;?&amp;gt; c1, Collection&amp;lt;?&amp;gt; c2) 判断是否有重复 void copy(List&amp;lt;? super T&amp;gt; dest, List&amp;lt;? extends T&amp;gt; src) 复制 boolean replaceAll(List&amp;lt;T&amp;gt; list, T oldVal, T newVal) 替换 void fill(List&amp;lt;? super T&amp;gt; list, T obj) 填充 int frequency(Collection&amp;lt;?</description></item><item><title>6. Dynamic Programming, Greedy, Amortize</title><link>/notes/intro-algo/6/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/intro-algo/6/</guid><description>动态规划 # 动态规划适合用来求解最优化问题。与分治法类似，通过递归地求解子问题来解决原问题。区别是，分治法可能会重复地多次解决同一个小问题，而动态规划选择将这些小问题的结果保存起来，避免重复多次地求解它们。
+钢条切割问题 # 不同长度的钢条有不同的价格，求最优解。使用递归思想的算法是，长度为 $n$ 的钢条的最优解是：
+CUT_ROD(prices, n) q = 0 for i = i to n q = max(q, prices[i] + CUT_ROD(prices, n - i)) return q 将函数的每次调用作为钢条的一次切割，则最优解为所有可能的切割方法中的最大值。显然，这种方法会大量地重复计算短钢条的最优价格。每当 n 增加 1，程序所用时间差不多增加一倍。
+有两种方法实现动态规划。第一种是带备忘的自顶向下法（top-down with memoization）。额外维护一个数组，记录每个子问题的解即可。另一种是自底向上法。自顶向下通常可以避免一些不需要的子问题计算，但自底向上不需要递归开销，通常具有更小的系数。两种算法的复杂度均为 $O(n^2)$。自底向上的算法是这样的：
+let r[0..n] be a new array r[0] = 0 for j = 1 to n q = -1 for i = 1 to j q = max(q, prices[i] + r[j - i]) r[k] = q return r[n] 除此之外，对于钢条最优解问题，还需要额外存储最优解的切割方案。</description></item><item><title>7. B-Tree, Fibonacci Heap, vEB Tree</title><link>/notes/intro-algo/7/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/intro-algo/7/</guid><description>B 树 # B 树的基本思想是这样的：设想一个树，每个节点都被储存在磁盘里，我们每次取出一个结点，这是很自然的。在进入下一层时，需要访问一个新的结点，这常常意味着新的磁盘访问。相应地，在节点内部进行的比较操作，也就是寻找前进方向的操作，只需要在主存里进行。
+显然，主存中的操作的时间代价要低得多。所以，我们让每个节点持有众多的关键字和众多的结点，从而尽量降低树的高度。这意味着，相比于二叉树，使用 B 树将会带来更多的比较操作和更少的磁盘访问。因此，这种数据结构适合大块的数据访问。典型的例子如 BtrFS。
+和其他各种树一样，B 树上操作的时间复杂度同样为 $O(\log_tn)$，只是这里的 $t$ 比二叉树中的 2 通常要大得多。
+B 树的操作 # B 树的基本操作在之前的 2-3 树已经介绍过。在插入关键字时，如果结点的大小超过了限制，就 “挤出” 一个最中间的关键字给父节点，并分裂当前结点。由于被挤出的是中间关键字，分类得到的两个新节点的长度应该相近。随后我们需要递归地对父节点进行判断，直到根节点分裂，这是 B 树高度增长的唯一方式。
+在回顾了分裂结点的操作后，我们就可以理解 B 树定义中 $t$ 的意义：每个节点内关键字的数量在 $t$ 和 $2t$ 之间，这分别是刚刚分裂过的结点和即将要分裂的结点。
+这里有一个不错的 B 树操作的可视化演示。
+B+ 树 # B+ 树是 B 树的一个变种，其所有的关键字都储存在叶子节点当中。由于 B 树中所有的结点高度相同，其查找的时间复杂度非常稳定。B+ 树可以接受重复关键字，将实际数据存储在叶子节点中，内部结点只用来指示存储位置即可。
+斐波那契堆 # 可合并堆 # 一个可合并堆应当支持以下的操作：
+创建空堆 插入关键字 取得最小值 删除最小值 合并两个堆 除此之外，斐波那契堆还可以支持减小已有元素的关键字和删除关键字的操作。
+之前出现过的二叉堆在前四个操作上效果都不错，时间代价为 $O(\log_2n)$。然而，在合并堆的操作上，二叉堆的速度非常慢。可以这样实现：将两个堆直接合并起来，再执行建堆操作。这样，复杂度会达到 $\Theta(n)$。斐波那契堆通常相比二叉堆具有更好的摊还代价。</description></item><item><title>7. IO, Regexp, Serialization</title><link>/notes/core-java-impatient/7/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/core-java-impatient/7/</guid><description>IO 流 # 创建和使用字节流 # // Create Stream Path path = new Path(&amp;#34;...&amp;#34;) InputStream in = Files.newInputStream(path); OutputStream in = Files.newOutputStream(path); byte[] bytes = ...; InputStream in = new ByteArrayInputStream(bytes); ByteArrayOutputStream out = new ByteArrayOutputStream(); byte[] bytes = out.toByteArray(); // read bytes int b = in.read(); //single byte, 0~255, or -1 for EOF. but byte is -128~127. byte[] bytes = ...; actualBytesRead = in.read(bytes); //read till EOF or byte[] full, return count actualBytesRead = in.</description></item><item><title>8. Graphs</title><link>/notes/intro-algo/8/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/intro-algo/8/</guid><description>图的表示与基本算法 # $G(V,E)$ 其中 $G$ 为 Graph 图，$V$ 为 Verticle 结点，$E$ 为 Edge 边。 邻接链表 邻接矩阵 BFS 广度优先遍历（队列） # 在 BFS 中，把未发现的结点和边标记为白色，发现但未完成的为灰色，已完成的为黑色。在 BFS 中，不需要对灰色和黑色进行区分。这个颜色用法也适用于 DFS 的结点。边只分为黑白两种。
+BFS 可以发现两个结点间的最短路径。
+DFS 深度优先遍历（栈） # 让 DFS 中一个节点的发现时间和完成时间分别为 $u.d$ 和 $u.f$。那么，对于任意两个节点，它们的 $[d,f]$ 时间区间要么完全分离，要么互相包含。被包含的在 DFS 树中是另一个节点的后代。
+结点 $v$ 是 $u$ 的后代，当且仅当发现 $u$ 时，存在一条白色（完全未发现的）路径连接二者。
+在 DFS 中将边分类。DFS 树中的称为树边，从一个节点连接到其祖先的为后向边，连接到其子孙的为前向边，其余的为横向边。于是，当且仅当图中无后向边，有向图无环。
+当第一次查看边 $(u,v)$ 时，若 $v$ 为白色，说明这是一条树边。若为灰色，说明是一条后向边（栈中的都是当前结点的祖先）。若为黑色，是前向或横向边（结点已经被访问过）
+拓扑排序 # 拓扑排序可以看做把图排列成一条直线，让所有的边都指向同一个方向。显然，有环图不能被线性排序。拓扑排序可以这样被简单实现：在 DFS 中，每完成一个结点，就将其排列到直线的最前面第一个位置。
+强连通分量 # 强连通分量是指任何两个节点都能从正逆两个方向连通的一个分量。可以由 DFS 获得。在下面的算法中，我们以这样一个图为例：</description></item><item><title>8. Threading</title><link>/notes/core-java-impatient/8/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/core-java-impatient/8/</guid><description>线程和进程 # 线程 # 如果要等待另一个线程完成，使用 join 方法。可以为这个方法加入超时时间。
+thread.join(millis); 当 run 方法返回或者抛出异常时，线程结束。每个线程都有自己的异常处理器，默认继承自线程组，通常就是我们熟悉的全局错误处理器。（err 流）可以使用 setUncaughtExceptionHandler 来改变这个处理器。
+有时，我们让几个线程执行类似的任务，而最终只需要一个结果，其他的线程都可以被取消。可以在 Runnable 中检查是否中断：
+Runnable task = () -&amp;gt; { while (check == true) { if (Thread.currentThread().isInterrupted()) return; ...; } } 实际上，中断（Interrupt）并没有一个非常准确的定义，更多的是程序员自己用来处理一些问题。
+如果线程在 wait 等待状态或者 sleep 休眠状态被中断，就会直接抛出 InterruptedException。对于这种情况，可以直接在 Runnable 中使用 try-catch 块进行处理。
+Runnable task = () -&amp;gt; { try { ...; } catch (InterruptedException ex) { Thread.currentThread().interrupt(); } } 如果线程在运行中被中断，那么一旦 sleep 被调用，就会立刻抛出异常。很多情况下我们并没有什么可做的，可以考虑直接把线程设置一下中断状态，或者继续将其抛出给真正能够处理的位置。</description></item><item><title>9. Notations</title><link>/notes/core-java-impatient/9/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/core-java-impatient/9/</guid><description>注解 # 注解元素 # @Test(timeout=10000) @BugReport(showStopper=true, assignedTo=&amp;#34;Harry&amp;#34;, testCase=CacheTest.class, status=BugReport.Status.COMFIRMED ) @SuppressWarnings(&amp;#34;unchecked&amp;#34;) // only one parameter, equals @SuppressWarnings(value=&amp;#34;unchecked&amp;#34;) @BugReport(reportedBy={&amp;#34;harry&amp;#34;, &amp;#34;fred&amp;#34;}) // array of above @BugReport(ref=@Reference(id=1123)) // another annotation 注解元素可以是：
+基本类型 String class 对象 enum 实例 注解 这些元素的一维数组 元素可以有默认值。例如 JUnit 的 @Test 注解的 timeout 元素默认为 0。
+使用注解 # 一个位置可以有多个注解。如果注解被声明为可重复的，甚至可以重复同一个注解多次。
+泛型类的类型参数也可以使用注解。在包的 package-info.java 中包含了带有注解的包语句，是包的 Javadoc。
+public class Cache&amp;lt;@Immutable V&amp;gt; {} @GPL(version=&amp;#34;3&amp;#34;) package com.</description></item><item><title>Garbage Collection</title><link>/notes/in-depth-jvm/gc/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/in-depth-jvm/gc/</guid><description>垃圾回收 # GC 算法 # 判断对象是否存活 # 判断对象存活的算法主要有两个：引用计数算法与可达性算法。其中，引用计数的实现十分简单，但这个算法对于循环引用不能很好地解决。因此，包括 C#、JAVA、Lisp 在内的主流实现使用的都是可达性分析算法。
+可达性分析算法 # 可达性分析算法的首要问题是 GC Roots 的选择。GC Root 可以理解为我们&amp;quot;希望存活&amp;quot;的引用。JVM 中可以作为 GC Root 的包括:
+VM 栈帧中的引用
+方法区中的静态属性
+方法区中的常量属性
+本地栈中的本地方法中的引用
+此外，在进行部分 GC 时，还可能把不收集部分指向收集部分的引用包括在内。例如，对新生代的 GC，老年代的对象中的引用也应该成为 GC Roots。此外，弱引用在新生代 GC 不被回收，因此属于 GC Root。到了 Full GC，弱引用需要被回收，就不属于 Root。当然，这些优化同时也会带来一定的代价，不同的 GC 器可能有不同的实现和权衡。无论如何，上面列出的四种一定会作为 GC Root 出现。
+JDK 1.2 之后，为了进行更加细致的 GC 处理，Java 引入了四种不同强度的引用。
+Finalize() 方法 # finalize() 方法的规范比较奇怪，这和 Java 的历史沿革有一定的关系。这个方法不应该在正常的开发中被使用。</description></item><item><title>Hadoop Basic Concepts</title><link>/distributed/hadoop-basic/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/distributed/hadoop-basic/</guid><description>Hadoop 基本概念 # HDFS # 功能特性 # 向各种计算框架开放文件读写端口，适合大文件、一次写入多次读取的存储。
+仅支持单线程 append 写，不支持随机多线程访问。
+结构 # HDFS Client # 与 NameNode 交互，获取文件 Block 所在结点等信息
+切分文件为 Block
+与 DataNode 交互，实际传输文件
+其他管理 HDFS 的工作
+NameNode # 作为集群的 Master，管理名称空间
+管理 Block 的映射信息
+配置副本策略
+处理 Client 的读写请求
+NameNode 是整个 HDFS 最重要的部分，在 Hadoop 2.</description></item><item><title>Java NIO Internal</title><link>/pl/java-nio-2/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/pl/java-nio-2/</guid><description>Java NIO: 原理 # Buffer 内部实现与包装 # 更多形式的 get 与 put # 也存在一些其他形式的 get() 和 put() 方法。
+byte get(); ByteBuffer get(byte dst[]); ByteBuffer get(byte dst[], int offset, int length); byte get(int index); ByteBuffer put(byte b ); ByteBuffer put(byte src[]); ByteBuffer put(byte src[], int offset, int length); ByteBuffer put(ByteBuffer src); ByteBuffer put(int index, byte b); 可以认为，这里接收 index 参数的方法是&amp;quot;绝对的&amp;quot;，它们直接对 buffer 中某个位置进行操作，而不受 buffer 目前状态的影响，绕过了下面我们将提到的 buffer 的统计方法。
+Buffer 的统计方式 # Buffer 的行为相当于一个简单的数组，它有三个重要的属性：</description></item><item><title>Java NIO Usage</title><link>/pl/java-nio-1/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/pl/java-nio-1/</guid><description>Java NIO: 应用 # 基本概念 # Java NIO 是一种非阻塞的、面向块而非字节的 IO 方式。虽然 Java 的传统 IO 也进行了一些基于 NIO 的改造，NIO 仍然能够带来许多优势。
+面向流的 IO 方便我们一个字节一个字节地处理数据，有利于实现过滤等功能，更加优雅和简单。相应地，其速度通常比较慢。
+Java NIO 的模型由三部分组成。
+Channel 通道，类似于传统 IO 中的流，用来实际传输数据。 Buffer 缓冲，我们用来读取和发送数据的位置。 Selector 选择器，可以在一个线程上绑定多个 Channel 和对应的 Buffer。 Channel # Channel 和流非常相似。区别是，通道支持异步读写，支持双向读写，而且基于缓冲区。相比之下，流通常是单向同步读写的。
+常用的 Channel 主要包括：
+FileChannel 文件 DatagramChannel UDP数据报 SocketChannel TCP 套接字 ServerSocketChannel TCP 服务端套接字 Buffer # Java 中的各种基本类型都有其对应的 Buffer，最常用的是 ByteBuffer。可以通过 Channel 或者手动写入数据。
+ByteBuffer buffer = ByteBuffer.</description></item><item><title>Java Synchronization</title><link>/notes/in-depth-jvm/synchronization/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/in-depth-jvm/synchronization/</guid><description>Java 中的线程同步 # Java 中的 synchronized 关键字 # 对函数使用 synchronized 关键字时，如果是静态函数，相当于 synchronized(this.class) 代码块。反之，则相当于 synchronized(this) 代码块。
+synchronized 代码块只能锁住对象。最经济的锁对象是 byte[0]，只需要三条字节码，比 new Object() 更少。锁住一个 static 变量，实际上相当于锁住一个类。锁住的对象必须是 private 的。否则，引用所指向的对象将能够被外部修改，破坏同步。
+public class Synchronize { private String name; private static final byte[] sb = new byte[0]; private final byte[] b = new byte[0]; private Synchronize(String name) { this.name = name; } public static void print(String s) { System.</description></item><item><title>JVM Memory Model</title><link>/notes/in-depth-jvm/memory-model/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/in-depth-jvm/memory-model/</guid><description>Java 内存模型 # 这里的 Java 内存模型（Java Memory Model, JMM）是 JVM 规范试图提出的一种平台无关的内存模型，目的是既能够达到平台无关的效果，同时能够发挥缓存、多核等硬件模型的性能。
+在这个模型中，每个线程都有自己的工作内存，与用于存储所有变量的主内存区分。二者之间的关系大致相当于 CPU Cache 与主存的关系，工作内存中存储的是主内存中存储的变量的一份拷贝。线程所有的对变量的修改都必须在工作内存中进行。需要注意的是，这里的变量指的是一个引用（Reference），而其指向的对象位于 JVM 堆中，也就是位于主内存区域。
+如果和 JVM 内存布局相关联的话，工作内存大致上相当于虚拟机栈的一部分，主内存主要对应于 JVM 堆中的对象实例。
+Java 内存模型的经典描述 # lock（锁定）：作用于主内存的变量，把一个变量标识为一条线程独占状态。 unlock（解锁）：作用于主内存变量，把一个处于锁定状态的变量释放出来，释放后的变量才可以被其他线程锁定。 read（读取）：作用于主内存变量，把一个变量值从主内存传输到线程的工作内存中，以便随后的load动作使用 load（载入）：作用于工作内存的变量，它把read操作从主内存中得到的变量值放入工作内存的变量副本中。 use（使用）：作用于工作内存的变量，把工作内存中的一个变量值传递给执行引擎，每当虚拟机遇到一个需要使用变量的值的字节码指令时将会执行这个操作。 assign（赋值）：作用于工作内存的变量，它把一个从执行引擎接收到的值赋值给工作内存的变量，每当虚拟机遇到一个给变量赋值的字节码指令时执行这个操作。 store（存储）：作用于工作内存的变量，把工作内存中的一个变量的值传送到主内存中，以便随后的write的操作。 write（写入）：作用于主内存的变量，它把store操作从工作内存中一个变量的值传送到主内存的变量中。 相应地，对这些操作进行了顺序的规定：
+不允许read和load、store和write操作之一单独出现 不允许一个线程丢弃它的最近assign的操作，即变量在工作内存中改变了之后必须同步到主内存中。 不允许一个线程无原因地（没有发生过任何assign操作）把数据从工作内存同步回主内存中。 一个新的变量只能在主内存中诞生，不允许在工作内存中直接使用一个未被初始化（load或assign）的变量。即就是对一个变量实施use和store操作之前，必须先执行过了assign和load操作。 一个变量在同一时刻只允许一条线程对其进行lock操作，lock和unlock必须成对出现 如果对一个变量执行lock操作，将会清空工作内存中此变量的值，在执行引擎使用这个变量前需要重新执行load或assign操作初始化变量的值 如果一个变量事先没有被lock操作锁定，则不允许对它执行unlock操作；也不允许去unlock一个被其他线程锁定的变量。 对一个变量执行unlock操作之前，必须先把此变量同步到主内存中（执行store和write操作）。 Volatile 规则 # JMM 为 volatile 提供了一系列特殊的规则。这些规则主要包含两个语义：
+首先，任何一条线程对 volatile 变量的修改都会被其他线程立刻得知。也就是说，变量的值在各个线程之间是一致的。即使实际上某一瞬间是不一致的，在下一次使用之前，线程都会从主内存重新刷新变量的值。
+然而，这并不意味着这个变量是线程安全的，因为作用在变量上的操作仍然不是原子的。所以，即使变量值的变化能够立刻反映到其他线程，也可能出现操作的冲突。因此，对于全局计数器这一类变量，使用 synchronized 才是正确的选择。volatile 变量更适合全局开关的角色：
+volatile boolea shutdownRequested; void shutdown() { shutdownRequested = true; } void doWork() { while (!</description></item><item><title>JVM Memory Regions</title><link>/notes/in-depth-jvm/memory-region/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/in-depth-jvm/memory-region/</guid><description>JVM 内存分区 # JVM 规范中定义了五个分区：PC，栈，本地栈，堆和方法区。在这里我们还加入了方法区中的运行时常量池和不属于 JVM 管理的直接内存。
+程序计数器 PC Program Counter # 线程私有 正常情况下指向运行的字节码，native 方法时为 0 JVM 规范中唯一一个未规定 OOM 的内存区域 栈 Java VM Stack # 大部分 JVM 将栈实现为可扩展的。当栈深度达到限制的最大值时，报 StackOverflowError。当已经没有内存来扩展时，报 OOM。
+栈帧 # 一个栈帧代表栈中的一个方法的信息。内容包括：
+局部变量表 操作数 动态链接 方法出口 其生命周期为一个方法从调用到返回的全过程。
+局部变量表 # 局部变量表保存八种基本类型的数据和对象的引用。以 slot 为单位，每个 slot 为 4 Byte。因此 double 类型占用两个 slot。
+本地方法栈 Native Method Stack # 与 Java 栈类似，本地方法栈是 native 方法的栈。JVM 规范中未做强制规定，HotSpot 虚拟机将 Java 栈和本地方法栈合二为一一同进行管理。</description></item><item><title>Lambda Calculus and Y Combinator</title><link>/pl/lambda/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/pl/lambda/</guid><description>Lambda 演算与 Y 组合子 # λ 演算 # λ 项 # 只有三种有效的 λ 项：
+一个变量 $x$ 一个抽象 $\lambda f.\lambda x.x$，大致上等同于 Python 中的 lambda f, x: x 函数的应用 $ts$，大致上等同于 Python 中的 t(s) α-等价 # 在一个抽象中，变量的名字并不重要。例如 $\lambda x.x$ 和 $\lambda y.y$ 是 α-等价的。
+描述这种变换的一种记法是使用：$t[x:=r]$，表示在 $t$ 中将所有的 $x$ 重命名为 $r$。于是有：
+$x[x:=r]=r$，将 $x$ 替换为 $r$ $y[x:=r]=y$，$y$ 中不包括 $x$，无需替换 $(ts)[x:=r]=(t[x:=r])(s[x:=r])$，对应用，将两部分分别替换 $\lambda x.t[x:=r]=\lambda x.t$，替换前后并没有区别（α-等价） $\lambda y.t[x:=r]=\lambda t.t[x:=r]$ 自由变量与约束变量 # 自由变量被定义为这样的集合：</description></item><item><title>Linux IO Multiplexing</title><link>/cs/linux-io-multiplex/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/cs/linux-io-multiplex/</guid><description>Linux IO 多路复用 # 同步/异步 阻塞/非阻塞 # 概念 # 《UNIX Network Programming》中给出了五种 IO 模型：
+同步阻塞 IO
+同步非阻塞 IO
+IO 多路复用
+信号驱动 IO
+异步 IO
+在考虑 IO 模式之前，要先回顾一些关于操作系统的知识。在程序调用系统调用（System Call）时，程序转而进入内核态，在内核态中完成 IO 操作，并将 IO 的数据从内核空间的 buffer 拷贝到用户空间的 buffer 中。回到用户态之后，程序将可以从 buffer 中取得数据。
+同步阻塞 IO # 对于同步阻塞 IO，在调用系统的 recvfrom 调用之后，进入内核态，线程阻塞。直到系统内核接收到数据并把数据拷贝到用户空间 buffer 全部完成后，才能从阻塞中恢复。
+同步非阻塞 IO # 在非阻塞模式的 IO 中，如果调用 recvfrom 时系统尚未收到对应的数据，则不会阻塞，而是直接返回 EWOULDBLOCK 错误。如果调用时已经收到了数据，才会在拷贝 buffer 的过程中阻塞。通常来说这个时间是短暂而稳定的，因此这种 IO 模式完全可以认为是非阻塞的。</description></item><item><title>Scala: Currying, Partially Applied, Partial</title><link>/pl/curry/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/pl/curry/</guid><description>Scala 中的柯里化、偏函数与部分应用函数 # 柯里化（Currying）、部分应用函数（Partially Applied Function）和偏函数（Partial Function）是 Scala 中三个非常容易混淆的元素。在 Groovy 中，部分应用函数也被称作了柯里化。实际上，二者的作用十分相似，思维上却有微妙的差异。
+在传统面向对象方法中涉及到工厂或模板的场合，通常正是柯里化和部分应用函数发挥作用的地方。另一种常见的场合是，在一系列代码中需要为一个函数绑定某一个固定的参数。在传统方式中，我们可能会抽象一个函数出来。但在函数式范式中，我们可以直接将这个&amp;quot;临时函数&amp;quot;绑定在一个变量中。
+概念上的区别 # 简单来说，柯里化的结果是&amp;quot;一串函数中的下一个&amp;quot;，而部分应用函数的结果是一个&amp;quot;减少了参数的函数&amp;quot;。对于函数 f(x, y, z)，其完全柯里化的结果是 f(x)(y)(z)。然后，我们将参数应用进去，例如规定 x 的值，得到的结果将是 g(y)(z)。反过来，对于部分应用函数，其结果将是 g(y, z)。
+偏函数之所以会被混淆则是因为名字过于相似。偏函数的&amp;quot;Partial&amp;quot;意味着其只能处理其所接受的参数的一部分。这种情况常见于模式匹配。偏函数可以被连接起来，上一个函数无法处理的参数被传递至下一个函数去处理。
+Groovy &amp;amp; Clojure # def volume = {h, w, l -&amp;gt; h * w * l} def area = volume.curry(1) def lengthPartialApplied = volume.curry(1, 1) def lengthCurried = volume.curry(1).curry(1) Groovy 的这些操作实际上是部分应用而不是柯里化。不过，这两种操作毕竟是十分相似的。而且，Groovy 也允许我们返回一个函数，以进行函数的复合。
+def composite = { f, g, x -&amp;gt; return f(g(x)) } def func = composite.</description></item><item><title>Scala: Monad, from Scala Perspective</title><link>/pl/monad/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/pl/monad/</guid><description>从 Scala 视角看 Monad # 群 Group # 群是由一个集合与一个二元运算组成，满足四个性质：封闭性、结合律、单位元和逆元。以整数集 $\mathbb{Z}$ 与加法运算组合起来的群为例：
+封闭性：所有集合内的元素经过二元运算得到的结果仍然在这个集合内。即，任意两个整数相加的结果仍为整数。 结合律：加法结合律 $(a+b)+c=a+(b+c)$。 单位元 / 幺元：存在一个元素与任意元素运算结果仍为那个元素。即，0 加任何整数结果都为那个整数。 逆元：对任意一个元素，总存在一个元素使得二者相运算结果为单位元。在这里即相反数。 如果省略逆元要求，则为一个幺半群（独异点，Monoid）。如果再省略单位元，则为一个半群（Semigroup）。从上面的结论可知，自然数与加法为一个幺半群，正整数与加法为一个半群。
+群的性质落实到程序设计中形成了一定操作的可能性。因为集合在运算上的封闭，op 的参数和返回值是同样的类型。基于集合的归约操作也依赖运算的性质。因为运算满足结合律，所以归约操作可以并行化。因为幺半群的操作有幺元，我们可以从一个起始点进行归约，也就是 Scala 中的 reduce 和 fold 方法。
+仍然以上面的加法为例。在求一个整数集合的和时，我们可以将集合拆分进行分布式计算，这是因为结合律。如果不使用 reduce 而使用 fold ,则需要一个初始值。这个初始值理所当然地就是 0，即运算的幺元。
+从程序设计的角度来讲，幺半群可以用这样的形式表示。其封闭性通过类型参数保证，而幺元的正确性则需要我们自己来保证。
+trait Monoid[A] { def op(a1: A, a2: A): A def zero: A } val intAddMonoid = new Monoid[Int] { def op(a1: Int, a2: Int) = a1 + a2 def zero = 0 } val intMultiplyMonoid = new Monoid[Int] { def op(a1: Int, a2: Int) = a1 * a2 def zero = 1 } val stringMonoid = new Monoid[String] { def op(a1: String, a2: String) = a1 + a2 def zero = &amp;#34;&amp;#34; } def listMonoid[A] = new Monoid[List[A]] { def op(a1: List[A], a2: List[A]) = a1 ++ a2 def zero = Nil } def optionMonoid[A] = new Monoid[Option[A]] { def op(a1: Option[A], a2: Option[A]) = a1 orElse a2 def zero = None } 范畴 Category # 范畴有三个条件：一个范畴由一系列物件 Object 构成的类 $ob(C)$ 和物件之间的态射组成的类 $hom(C)$ 构成。每一个态射是一个物件指向另一个物件的保持结构的一种关系。态射可以复合，就是说，如果对物件 $a,b,c$，有 $f:a\rightarrow b,g:b\rightarrow c$，那么存在 $g\circ f:a\rightarrow c$。一个范畴还满足两条公理：</description></item><item><title>Spark RDD Programming</title><link>/distributed/spark-rdd/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/distributed/spark-rdd/</guid><description>Spark RDD 编程 # 使用数据集 # 并行化集合 # 可以使用 Spark Context 的方法对数组进行并行化，以在其上并行地进行操作。
+val data = Array(1, 2 ,3, 4, 5) val distData = sc.parallelize(data) distData.reduce((a, b) =&amp;gt; a + b) sc.parallelize(data, 10) // 10 partitions 进行并行化的一个重要参数就是将集合进行切分的分区（Partition）数量。通常，比较好的数字是每个逻辑核心 2 ~ 4 个分区，Spark 会自动进行划分。如上，也可以手动指定分区的数量。
+外部数据集：文本文件 # Spark 可以为任何被 Hadoop 支持的存储方式上创建分布式的数据集，包括 HDFS，Cassandra，Hbase，Amazon S3，以及本地存储等等。它也支持文本文件或 Hadoop 的各种 InputFormat。
+文本文件的数据集可以使用 Spark Context 的 textFile 方法来读取。这个方法接收一个文件的 URI，并作为行的集合读取进来。
+val distFile = sc.textFile(&amp;#34;data.txt&amp;#34;) // distFile: org.apache.spark.rdd.RDD[String] = data.</description></item><item><title>Spark SQL Programming</title><link>/distributed/spark-sql/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/distributed/spark-sql/</guid><description>Spark SQL Programming # Basic # DataFrame # # standalone from pyspark.sql import SparkSession spark = SparkSession \ .builder \ .appName(&amp;#34;Python Spark SQL basic example&amp;#34;) \ .config(&amp;#34;spark.some.config.option&amp;#34;, &amp;#34;some-value&amp;#34;) \ .getOrCreate() # in pyspark repl spark = SQLContext(sc) # json file content: # {&amp;#34;name&amp;#34;:&amp;#34;Michael&amp;#34;} # {&amp;#34;name&amp;#34;:&amp;#34;Andy&amp;#34;, &amp;#34;age&amp;#34;:30} # {&amp;#34;name&amp;#34;:&amp;#34;Justin&amp;#34;, &amp;#34;age&amp;#34;:19} df = spark.read.json(&amp;#34;examples/src/main/resources/people.json&amp;#34;) # missing value is null df.show() df.printSchema() df.select(&amp;#34;name&amp;#34;).show() # prints a column of data df.</description></item><item><title>ThreadLocal and Reference</title><link>/notes/in-depth-jvm/threadlocal-reference/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/notes/in-depth-jvm/threadlocal-reference/</guid><description>ThreadLocal 与 Java 中的引用 # ThreadLocal 类 # ThreadLocal&amp;lt;T&amp;gt; 类可以被赋值，并会将自身作为 key，值作为 value 存入 Thread 对象中的 ThreadLocalMap 中。这样，就能够保证使用这个类包装的变量仅存在于当前线程。而且，即使两个线程分别访问同一个 ThreadLocal 对象，从 get() 方法获取到的值也都是各自线程中的值。
+void func() { tl.set(Thread.currentThread().getName()); System.out.println(tl.get()); } ThreadLocal&amp;lt;String&amp;gt; tl = new ThreadLocal&amp;lt;&amp;gt;(); new Thread(() -&amp;gt; {this::func}).start(); // Thread-0 new Thread(() -&amp;gt; {this::func}).start(); // Thread-1 构造 # ThreadLocal&amp;lt;T&amp;gt; 类的构造方法没有任何内容和参数。
+每个对象有一个 final int threadLocalHashCode。这个变量的值由静态构造，来自一个 AtomicInteger 累加上一个魔法值。这个魔法值以尽量避免碰撞为依据。这个变量最终会被用在 ThreadLocalMap 的 hash 过程中。
+set 方法 # set(T value) 方法接收要传入的值，使用 getMap(Thread t) 方法得到当前所在线程的 ThreadLocalMap。如果结果为 null，就调用 createMap(Thread t, Object value)。否则，直接将参数值存入到 map 中：map.</description></item></channel></rss>
