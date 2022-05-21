@@ -2,9 +2,11 @@
 title = 'Spark RDD Programming'
 +++
 
-# 使用数据集
+# Spark RDD 编程
 
-## 并行化集合
+## 使用数据集
+
+### 并行化集合
 
 可以使用 Spark Context 的方法对数组进行并行化，以在其上并行地进行操作。
 
@@ -15,9 +17,9 @@ distData.reduce((a, b) => a + b)
 sc.parallelize(data, 10)  // 10 partitions
 ```
 
-进行并行化的一个重要参数就是将集合进行切分的分区（Partition）数量。通常，比较好的数字是每个逻辑核心 2～4 个分区，Spark 会自动进行划分。如上，也可以手动指定分区的数量。
+进行并行化的一个重要参数就是将集合进行切分的分区（Partition）数量。通常，比较好的数字是每个逻辑核心 2 ~ 4 个分区，Spark 会自动进行划分。如上，也可以手动指定分区的数量。
 
-## 外部数据集：文本文件
+### 外部数据集：文本文件
 
 Spark 可以为任何被 Hadoop 支持的存储方式上创建分布式的数据集，包括 HDFS，Cassandra，Hbase，Amazon S3，以及本地存储等等。它也支持文本文件或 Hadoop 的各种 InputFormat。
 
@@ -34,16 +36,16 @@ distFile.map(line => line.length).reduce((a, b) => a + b)
 -   Spark 的所有基于文件的输入方法，包括这里的 `textFile`，都支持目录、通配符和 gz 压缩文件。
 -   `textFile` 方法也可以接收一个参数，来控制文本文件的分区数量。Spark 默认为文件的每个 Block 创建一个分区，在 HDFS 上默认是 128 MB。你可以传入一个更大的值使分区的数量更多，但不能少于 block 的数量。
 
-## 其他数据格式
+### 其他数据格式
 
 -   `sc.wholeTextFiles` 可以读取一个包含许多小文本文件的目录，将每一个以 `filename, content` 元组返回。相比之下，`textFile` 是以行为单位进行读取。这个方法也提供了第二个参数来控制分区的最少数量。
 -   对于 Hadoop 生成的二进制键值对形式的 Sequence 文件，使用 `sc.sequenceFile[K, V]` 来读取。其中，K 和 V 都需要是 Hadoop 的 `Writable` 的子类，例如 `IntWritable` 和 `Text`。Spark 允许使用原生类型来代替几种常见的 `Writable`，例如对于一个 `IntWritable` 和 `Text` 的序列文件，也可以使用 `sequenceFile[Int, String]`，Spark 会进行自动转换。
 -   对于其他的 Hadoop InputFormat，可以使用 `sc.hadoopRDD` 方法来读取。它接收一个任意的 `JobConf` 和 InputFormat 类，key 类和 value 类。对于新的 MapReduce API（org.apache.hadoop.mapreduce），使用 `sc.newAPIHadoopRDD`。
 -   `rdd.saveAsObjectFile` 和 `sc.objectFile` 可以保存和读取一个 RDD，使用的是简单的序列化 Java 对象。虽然这样不算高效，但足够简单。
 
-# RDD 操作
+## RDD 操作
 
-## Transformations
+### Transformations
 
 转换操作将一个数据集转换为另一个数据集，主要包括各种 `map` `filter`，针对键值对的 `reduceByKey` `groupByKey` `sortByKey` `aggregateByKey`，对集合进行转换的 `union` `join`，以及处理分区数量的 `repartition` `coalesce` 等方法。这些操作都会是懒加载的。也就是说，在遇到 Action 之前，Spark 都只记录操作而并不真正计算。
 
@@ -55,13 +57,13 @@ val lineLengths = lines.map(s => s.length).persist()
 val totalLength = lineLengths.reduce((a, b) => a + b)
 ```
 
-## Action
+### Action
 
 Action 通常会将集合转换为一个非集合的值，或者将集合收集回 Driver。包括 `reduce` `collect` `first` `take` `countByKey` 等取得元素或计算得到值的方法，以及各种 `saveAsTextFile` 类似的保存方法。
 
 同时，Spark 也提供了一些方法的异步版本。例如 `foreachAsync` 返回一个 `FutureAction`，而不会阻塞在运算过程中。
 
-## 传递函数
+### 传递函数
 
 向 `map` 这一类方法传递函数的方式有几种。可以和上面一样使用匿名函数，也可以传递已有的方法，例如单例对象中的方法。
 
@@ -92,7 +94,7 @@ def doStuff(rdd: RDD[String]): RDD[String] = {
 
 这样，就只有 `field_` 需要被发送到整个集群。
 
-## 理解闭包
+### 理解闭包
 
 ``` scala
 var counter = 0
@@ -101,7 +103,7 @@ sc.parallelize(data).foreach(x => counter += x)  // WRONG
 
 显然，这样的代码是存在冲突的，其结果是不确定的。在每一个 task 执行之前，Spark 都要计算这个任务的**闭包**（Closure），也就是这个过程所需要访问的外部变量和函数。闭包会被序列化并发送到集群的每一个 executor。
 
-**因此，所有的 executor 处理的都是其内部自己的 counter 变量的副本，而不是我们定义的 Driver 里的 counter。**当然，在 Local 模式下，如果 executor 和 Driver 使用同一个 JVM，这个值是有可能变化的。但无论如何都不应该使用这种方法。
+因此，所有的 executor 处理的都是其内部自己的 counter 变量的副本，而不是我们定义的 Driver 里的 counter。当然，在 Local 模式下，如果 executor 和 Driver 使用同一个 JVM，这个值是有可能变化的。但无论如何都不应该使用这种方法。
 
 这种时候，适合使用累加器 `Accumulator`。Spark 会为这个累加器提供安全更新变量的机制。具体做法我们会在后面讨论。
 
@@ -112,7 +114,7 @@ rdd.collect().foreach(println)
 rdd.take(100).foreach(println)
 ```
 
-## 使用键值对
+### 使用键值对
 
 如果 RDD 的泛型类型是一个二元元组（Tuple），那么 RDD 会将其作为键值对来处理。例如，对于简单的 LineCount 程序：
 
@@ -124,9 +126,9 @@ sc.textFile("data.txt").map(s => (s, 1))
 
 与 Java 一样，由于键值对的操作中需要对元素进行比较，key 必须要提供匹配的 `hashCode` 和 `equals` 方法。
 
-# Shuffle
+## Shuffle
 
-## Background
+### Background
 
 Shuffle 是 Spark 重新分配数据的一种方式。这个过程通常需要在结点之间互相交换数据，因此这个过程相对代价较高。
 
@@ -138,17 +140,17 @@ Shuffle 是 Spark 重新分配数据的一种方式。这个过程通常需要�
 
 能够触发 Shuffle 的操作包括 `rePartition` `coalesce`，除 `counting` 之外的各种 `ByKey` 操作，以及 `join` 和 `cogroup`。
 
-## 性能影响
+### 性能影响
 
 Shuffle 操作主要的代价涉及到磁盘 IO、数据序列化、网络 IO 三个部分。这时，Spark 系统会建立一批 map task 和 reduce task。这两个名词来自 MapReduce，和 Spark 的两个方法没有关系。
 
 在系统内部，每个独立的 map task产生的结果都被保存在内存里，直到放不下为止。然后，这些数据会根据目标分区进行排序并写到磁盘上的一个文件。最后，reduce task 读取磁盘，将数据恢复。
 
-一些 Shuffle 方法会消耗大量的堆内存，因为它们采用一些数据结构来组织这些数据。例如，`reduceByKey` 和 `aggregateByKey` 会在网络传输前的 map task 过程中创建这些数据结构（按 key 分组并计算，相比之下传输后的计算量很小，`countBykey` 同理），其他 `'ByKey'` 操作则会在最后创建这种数据结构（如 `sortByKey`）。当内存不足时，就会需要大量的磁盘 IO 和 GC 操作。
+一些 Shuffle 方法会消耗大量的堆内存，因为它们需要采用一些数据结构来组织这些数据。例如，`reduceByKey` 和 `aggregateByKey` 会在 map task 过程中创建这些数据结构，而另一些其他 `ByKey` 操作则会在 Reduce 端创建这些数据结构（如 `sortByKey`）。当内存不足时，就会需要大量的磁盘 IO 和 GC 操作。
 
-此外，这个过程还会在磁盘上产生大量的中间文件。有些类似于 Hadoop 的形式。在 Spark 1.3 之后，这些文件会一直保留到 RDD 被 GC，无法再使用为止。这是为了能够方便地计算 RDD 的"血统"（lineage）。那么，如果 RDD 被使用的时间很长，或者 GC 不频繁，这些文件就会占据相当多的磁盘空间。临时存储路径定义在 `SparkContext` 的 `spark.local.dir` 属性。
+此外，这个过程还会在磁盘上产生大量的中间文件，有些类似于 Hadoop 的形式。在 Spark 1.3 之后，这些文件会一直保留到 RDD 被 GC，无法再使用为止。这是为了能够方便地计算 RDD 的"血统"（lineage）。那么，如果 RDD 被使用的时间很长，或者 GC 不频繁，这些文件就会占据相当多的磁盘空间。临时存储路径定义在 `SparkContext` 的 `spark.local.dir` 属性。
 
-# RDD 持久化
+## RDD 持久化
 
 首先看 `RDD.scala`源码与持久化相关的部分：
 
@@ -205,11 +207,11 @@ Python 中能够使用的 Level 有所不同。
 
 在 Shuffle 操作中，Spark 会自动使用持久化，即使我们不去主动指定。这样做的目的是，在某个节点运行失败时，不需要计算所有的输入数据。总之，只要我们可能重复使用同一个 RDD，最好就对其进行持久化。
 
-# 共享变量
+## 共享变量
 
 上面我们已经提到，在 `map` 等方法中使用的变量，需要被复制到整个集群的所有节点中去。并且，这些变量的更新并不会被传回 Driver。为了解决这个问题，Spark 提供了广播变量和累加器两种解决办法。
 
-## 广播变量
+### 广播变量
 
 广播变量允许我们将一个只读的变量缓存到每一台机器上去。例如以一种比较高效的方式将一份相对稍大的数据集给每一个节点一个副本。Spark 会尝试使用相对高效的算法来降低传输代价。
 
@@ -224,7 +226,7 @@ broadcastVar.value
 
 创建之后，变量 `v` 只需要被传输一次就足够了。另外，为了保证所有结点都能取到相同的值，变量 `v` 在广播后不应该再被修改。
 
-## 累加器 Accumulator
+### 累加器 Accumulator
 
 累加器常常用来实现计数器或求和。Spark 原生支持数值型 long 和 double 的累加，而且我们可以实现自己的累加器类型。建立之后，每个任务都可以对累加器进行加操作，但只有 Driver 能够读取值。
 

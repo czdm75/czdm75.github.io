@@ -2,9 +2,11 @@
 title = 'Java NIO Internal'
 +++
 
-# Buffer 内部实现与包装
+# Java NIO: 原理
 
-## 更多形式的 get 与 put
+## Buffer 内部实现与包装
+
+### 更多形式的 get 与 put
 
 也存在一些其他形式的 `get()` 和 `put()` 方法。
 
@@ -23,7 +25,7 @@ ByteBuffer put(int index, byte b);
 
 可以认为，这里接收 `index` 参数的方法是"绝对的"，它们直接对 buffer 中某个位置进行操作，而不受 buffer 目前状态的影响，绕过了下面我们将提到的 buffer 的统计方法。
 
-## Buffer 的统计方式
+### Buffer 的统计方式
 
 Buffer 的行为相当于一个简单的数组，它有三个重要的属性：
 
@@ -59,7 +61,7 @@ buf.reset()  // HeapByteBuffer[pos=1 lim=4 cap=8]
 
 总的来看，写入模式下，limit 与 capacity 相等，pos 指向要写入的位置，pos 以下的是"有效数据"。读取模式下，limit 为有效数据的范围，pos 为当前读取的位置。limit 以下的是"有效数据"。在 buffer 的 `equals()` 方法中，只比较有效数据。当然，如果有效数据的长度不相等，`equals()` 一定为假。
 
-## 类型化、包装
+### 类型化、包装
 
 ``` java
 byte[] array = new byte[8]                  // { 0, 0, 0, 0, 0, 0, 0, 0 }
@@ -81,7 +83,7 @@ buffer.limit(7)                      // HeapByteBuffer[pos=3 lim=7 cap=8]
 ByteBuffer another = buffer.slice()  // HeapByteBuffer[pos=0 lim=4 cap=4]
 ```
 
-## 只读、直接缓冲区、内存映射
+### 只读、直接缓冲区、内存映射
 
 Java NIO 还提供了只读缓冲区包装和速度更快的直接缓冲区。对于直接缓冲区，JVM 会尽量从系统 IO 调用中直接读取或写入系统调用，避免中间更多的缓冲区开销。
 
@@ -99,9 +101,9 @@ mbb.put(0, (byte)97);
 mbb.put(1023, (byte)122);
 ```
 
-# NIO 中的各种 Channel
+## NIO 中的各种 Channel
 
-## FileChannel
+### FileChannel
 
 前面我们已经见到 `FileChannel` 的使用，它是一种只有阻塞模式的 Channel。`FileChannel` 操作的是随机读写的文件。因此，还有一些相应的属性和方法。`truncate` 代表从当前位置截取一定长度的文件，`force` 代表强制将系统缓存写入到磁盘。接收的参数代表是否写入元数据。
 
@@ -127,7 +129,7 @@ toChannel.transferFrom(fromChannel, position, count);
 
 `count` 只能代表传输量的最大值，如果通道的数据量小于 `count`，就只传递通道内实际有的数据。类似地，也可以使用 `FileChannel.transferTo(position, count, channel)` 来将文件内容传输到其他位置。
 
-## AsynchronousFileChannel 异步文件通道
+### AsynchronousFileChannel 异步文件通道
 
 异步文件通道的读写返回的是一系列的 `Future` 包装的对象，并且不会阻塞，可以立即返回。其创建和其他的通道类似：
 
@@ -184,7 +186,7 @@ fileChannel.write(buffer, position, buffer,
 });
 ```
 
-## SocketChannel
+### SocketChannel
 
 前面见到了服务端开启 `SocketChannel` 的方法，并将其和传统方式比较了一下。客户端的情况还要更简单一些：
 
@@ -206,11 +208,11 @@ while(!socketChannel.finishConnect()){
 
 类似地，在非阻塞模式下的 `read` 方法总是能被调用，同时也意味着它有可能并不读出任何数据。因此，必须要检查方法的返回值，即读入的字节数。非阻塞模式和 Selector 的运行方式也更加吻合。
 
-## ServerSocketChannel
+### ServerSocketChannel
 
 阻塞模式的运行方式我们同样已经比较熟悉。在非阻塞模式下，调用 `accept()` 方法可能会返回 null，代表没有连接建立。
 
-## DataGramChannel
+### DataGramChannel
 
 UDP 本身就是无连接的，因此数据包通道的操作和传统 IO 没有太大的区别：
 
@@ -229,7 +231,7 @@ channel.connect(new InetSocketAddress("example.com"), 80));
 
 在调用了 `connect` 方法之后，就可以像 TCP 一样调用 `read` 和 `write` 方法。只不过，背后实际调用的仍然是 TCP 模式，数据的读写也无法得到保证。
 
-## Pipe 管道
+### Pipe 管道
 
 管道能够提供将一个通道的数据发送到另一个的功能。也可以通过方法将数据取出来。这是一个抽象类，具体的实现需要继承编写。
 
@@ -239,9 +241,9 @@ Pipe.SinkChannel sinkChannel = pipe.sink();
 Pipe.SourceChannel sourceChannel = pipe.source();
 ```
 
-# 提供其他相关功能的类
+## 提供其他相关功能的类
 
-## java.nio.file.Path
+### java.nio.file.Path
 
 `Path` 是在 Java 7 的 NIO 2 中引入的，其伴随类 `Paths` 同样位于 `java.nio.file` 包。这个类和原来的 `java.io.File` 类的功能类似，在 NIO 中，专用来处理路径。而关于具体文件的操作大多交给 `Files`，以 `Path` 作为其参数。
 
@@ -256,11 +258,11 @@ Paths.get("/home/./../opt").normalize();
 
 如果将 UNIX 绝对路径用在 Windows 上，得到的将会是相对于当前磁盘的路径。
 
-## java.nio.file.Files
+### java.nio.file.Files
 
 `Files` 用来和 `Path` 类共同操作文件，将其和传统的 `java.io.File` 类区分开。
 
-### 对文件的操作
+#### 对文件的操作
 
 在操作文件时，需要注意，并不支持递归创建。也就是说，在创建一个文件之前，必须首先创建其父文件夹。
 
@@ -286,7 +288,7 @@ Files.move(sourcePath, destinationPath,
 Files.delete(path);
 ```
 
-### FileVisitor 遍历目录结构
+#### FileVisitor 遍历目录结构
 
 `walkFileTree()` 方法可以查看目录结构。这个方法需要接受一个自己实现的 `FileVisitor` 对象。Java 只提供了一个全空实现的 `SimpleFileVisitor`。
 
@@ -347,7 +349,7 @@ Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
 });
 ```
 
-### Files 与 Stream
+#### Files 与 Stream
 
 在 Java 8 中，`Files` 增加了新的便于逐行处理文本文件的方法。
 
@@ -364,7 +366,7 @@ public static Stream<Path> find(Path start, int maxDepth,
 
 在 `BufferedReader` 中也有类似的方法。
 
-## 文件锁
+### 文件锁
 
 Linux 的文件锁可以从两个维度来区分：**共享锁-排他锁**，和**劝告锁-强制锁**。通常，读锁是共享的，写锁是排他的。Java 在这里使用的是劝告锁，这意味着内核并不真正禁止对文件的访问，而只是为应用程序提供一个已经上锁的状态指示。
 

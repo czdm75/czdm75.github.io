@@ -2,9 +2,11 @@
 title = 'Spark SQL Programming'
 +++
 
-# Basic
+# Spark SQL Programming
 
-## DataFrame
+## Basic
+
+### DataFrame
 
 ``` python
 # standalone
@@ -34,7 +36,7 @@ df.filter(df['age'] > 21).show
 df.groupBy("age").count().show()
 ```
 
-## SQL Queries
+### SQL Queries
 
 ``` python
 # temp view
@@ -46,9 +48,9 @@ df.createGlobalTempView("people")
 spark.newSession().sql("SELECT * FROM global_temp.people").show()
 ```
 
-# Schema
+## Schema
 
-## Infering Schema
+### Infering Schema
 
 ``` python
 from pyspark.sql import Row
@@ -70,7 +72,7 @@ teenNames = spark.sql("SELECT name FROM people WHERE age >= 13 AND age <= 19")
 teenNames.rdd.map(lambda p: "name: " + p.name).collect()  # RDD[String]
 ```
 
-## Programatically Specifying the Schema
+### Programatically Specifying the Schema
 
 1.  Create an RDD of tuple or lists. (like `RDD[Tuple2]`)
 2.  Create the schema as a `StructType` matching these tuples
@@ -79,10 +81,16 @@ teenNames.rdd.map(lambda p: "name: " + p.name).collect()  # RDD[String]
 ``` python
 from pyspark.sql.types import *
 
-people = sc.textFile("examples/src/main/resources/people.txt").map(lambda l: l.split(",")).map(lambda p: (p[0], p[1].strip()))  # RDD[(String, String)]
+people = sc.textFile("examples/src/main/resources/people.txt") \
+    .map(lambda l: l.split(",")) \
+    .map(lambda p: (p[0], p[1].strip()))  # RDD[(String, String)]
 
 schemaString = "name age"  # cloumn names string
-fields = [StructField(field_name, StringType(), True) for field_name in schemaString.split()]  # One StructField is One field in structType
+fields = [
+    StructField(field_name, StringType(), True)
+    for field_name in schemaString.split()
+]  # One StructField is One field in structType
+
 # class StructField(name, dataType, nullable=True, metadata=None)
 # DataType is base class of datatypes, e.g. StringType, BinaryType, etc.
 
@@ -90,15 +98,19 @@ schema = StructType(fields)
 schemaPeople = sql.createDataFrame(people, schema)
 ```
 
-## User-defined Functions (UDFs)
+### User-defined Functions (UDFs)
 
 ``` python
-spark.registerFunction("CTOF",
-                       lambda degreesCelsius: ((degreesCelsius * 9.0 / 5.0) + 32.0))
-spark.sql("SELECT city, CTOF(avgLow) AS avgLowF, CTOF(avgHigh) AS avgHighF FROM citytemps").show()
+spark.registerFunction(
+    "CTOF",
+    lambda degreesCelsius: ((degreesCelsius * 9.0 / 5.0) + 32.0)
+)
+spark.sql(
+    "SELECT city, CTOF(avgLow) AS avgLowF, CTOF(avgHigh) AS avgHighF FROM citytemps"
+).show()
 ```
 
-## User-defined Aggregate Functions
+### User-defined Aggregate Functions
 
 ``` scala
 import org.apache.spark.sql.{Row, SparkSession}
@@ -191,7 +203,7 @@ val averageSalary = MyAverage.toColumn.name("average_salary")
 ds.select(averageSalary)
 ```
 
-# Data Sources
+## Data Sources
 
 ``` python
 df = spark.read.load("examples/src/main/resources/users.parquet")
@@ -210,14 +222,14 @@ df = spark.read.load(
 df = spark.sql("SELECT * FROM parquet.`examples/src/main/resources/users.parquet`")
 ```
 
-## SaveMode
+### SaveMode
 
 -   `ErrorIfExists`
 -   `Append`
 -   `Overwrite`
 -   `Ignore`
 
-## Save to Persistent Table
+### Save to Persistent Table
 
 ``` python
 df.write.option("path", "/some/path").saveAsTable("t")
@@ -225,7 +237,7 @@ df.write.bucketBy(42, "name").sortBy("age").saveAsTable("people_bucketed")
 df.write.partitionBy("favorite_color").format("parquet").save("namesPartByColor.parquet")
 ```
 
-## Hive
+### Hive
 
 For Spark SQL to operate Hive, you need hive jars in classpath of every node and `hive-site.xml` `core-site.xml` `hdfs-site.xml` file in `conf/` . When not configured by the `hive-site.xml`, the context automatically creates `metastore_db` in the current directory and creates a directory configured by `spark.sql.warehouse.dir`, which defaults to the directory `spark-warehouse` in the directory the Spark application starts.
 
@@ -255,7 +267,7 @@ recordsDF.createOrReplaceTempView("records")
 spark.sql("SELECT * FROM records r JOIN src s ON r.key = s.key").show()
 ```
 
-## Hive Settings
+### Hive Settings
 
 ``` sql
 CREATE TABLE src(id int) USING hive OPTIONS(fileFormat 'parquet')
@@ -273,9 +285,9 @@ from pyspark.sql.functions import broadcast
 broadcast(spark.table("src")).join(spark.table("records"), "key").show()
 ```
 
-# Pandas
+## Pandas
 
-## Transforming
+### Transforming
 
 ``` python
 import numpy as np
@@ -291,7 +303,7 @@ df = spark.createDataFrame(pdf)
 result_pdf = df.select("*").toPandas()
 ```
 
-## Pandas Scalar (纯量) UDFs
+### Pandas Scalar (纯量) UDFs
 
 ``` python
 import pandas as pd
@@ -323,7 +335,7 @@ df.select(multiply(col("x"), col("x"))).show()
 # +-------------------+
 ```
 
-## Pandas Grouped Map UDFs
+### Pandas Grouped Map UDFs
 
 Grouped Map UDFs are used along with `groupBy()`
 
@@ -352,7 +364,7 @@ df.groupby("id").apply(substract_mean).show()
 # +---+----+
 ```
 
-# Shuffle Hash Join / Broadcast Hash Join / Sort Merge Join
+## Shuffle Hash Join / Broadcast Hash Join / Sort Merge Join
 
 Hash Join 的思想是，首先将两个表分为小表 BuildTable 和大表 ProbeTable。将 BuildTable 以 Join Key 为 Key 构建为 HashMap，就可以将 ProbeTable 中的每条记录的 Key 在 HashMap 中进行 O(1) 的搜索，命中后再具体比较 Join Key 的实际值。整个算法的复杂度为 O(a+b)。
 

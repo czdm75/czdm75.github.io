@@ -4,4 +4,7 @@ math = true
 bookCollapseSection = true
 +++
 
+# Introduction to Algorithms
+
 {{< section >}}
+

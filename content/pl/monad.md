@@ -3,7 +3,9 @@ title = 'Scala: Monad, from Scala Perspective'
 math = true
 +++
 
-# 群 Group
+# 从 Scala 视角看 Monad
+
+## 群 Group
 
 群是由一个集合与一个二元运算组成，满足四个性质：封闭性、结合律、单位元和逆元。以整数集 $\mathbb{Z}$ 与加法运算组合起来的群为例：
 
@@ -52,7 +54,7 @@ def optionMonoid[A] = new Monoid[Option[A]] {
 }
 ```
 
-# 范畴 Category
+## 范畴 Category
 
 范畴有三个条件：一个范畴由一系列物件 Object 构成的类 $ob(C)$ 和物件之间的态射组成的类 $hom(C)$ 构成。每一个态射是一个物件指向另一个物件的保持结构的一种关系。态射可以复合，就是说，如果对物件 $a,b,c$，有 $f:a\rightarrow b,g:b\rightarrow c$，那么存在 $g\circ f:a\rightarrow c$。一个范畴还满足两条公理：
 
@@ -71,7 +73,7 @@ def optionMonoid[A] = new Monoid[Option[A]] {
 
 落回到类型系统上。如果我们把一个函数看作一个类型到另一个类型的态射，那么一系列类型及它们之间的函数就是一个范畴。例如，整数类型，字符串类型和 `toString` 函数，加上两种类型的 `identity` 函数，构成一个范畴。
 
-# 函子 Functor
+## 函子 Functor
 
 这样做的目的是引入下一个概念：函子。函子是范畴到范畴之间的映射，也可以解释为**小范畴范畴**中的态射。花点时间思考一下这个概念：这个范畴中的物件为小范畴，态射为小范畴到小范畴的态射，也就是范畴到范畴之间的映射。函子被这样定义：
 
@@ -142,7 +144,7 @@ List(1).map(_.toString)
 List(1).map((i: Int) => i.toString)
 ```
 
-## 函子与逆变、协变
+### 函子与逆变、协变
 
 函子相关的还有两个概念：协变函子和反变函子（逆变函子）。上面描述的即为协变函子，反变函子则是将态射的方向反转，即：
 
@@ -175,7 +177,7 @@ def on[U](f: U => T): Ordering[U] = new Ordering[U] {
 
 这个函数将 `U => T` 映射为 `Ordering[T] => Ordering[U]`。
 
-# 自函子范畴上的幺半群
+## 自函子范畴上的幺半群
 
 从 $C$ 到 $D$ 的函子范畴，记作 $[C, D]$，是以所有的协变函子 $F:C\rightarrow D$ 为对象，以函子之间的自然变换为态射的范畴。如果 $C,D$ 是同一个范畴，那么函子 $F$ 就是自函子，这个范畴也就是自函子范畴。
 
@@ -189,7 +191,7 @@ def on[U](f: U => T): Ordering[U] = new Ordering[U] {
 
 那么，我们希望这个范畴具有什么样的性质，或者说我们希望这些态射是什么样的呢？在这里，对于函子 $M$，我们希望单位态射 $\eta:1_H\rightarrow M$，（这里的 $1_H$ 表示 范畴中的物件 $H$ 的单位态射）态射的复合 $\mu：M\circ M\rightarrow M$。符合这样性质的自函子就是单子 Monad。（由于单子是一个自函子，所以只需要一个态射及其复合即可定义它。）显然，这个复合操作完美地复合封闭性、结合律和单位元。因此，单子是一个自函子范畴上的幺半群。
 
-# 用 Monad 解决回调地狱
+## 用 Monad 解决回调地狱
 
 考虑一个简单的除法函数：
 
@@ -305,7 +307,7 @@ al = do
   safeDiv e z
 ```
 
-# Functor, Applicative, Monad
+## Functor, Applicative, Monad
 
 现在我们从另一个方向来理解 Monad 等概念。在前面的例子中，我们都是使用的"容器"来理解，但实际情况中完全可以不只是容器。Haskell 世界常用上下文 Context 来表示这个概念。在 Scala 世界中，也不仅仅容器可以接收类型参数。首先回顾一下 Functor 和 Monad，在下面的描述中，我们都省略比较显而易见的 `unit` 的定义：
 
@@ -376,7 +378,7 @@ trait Monad[M[_]] extends ApplicativeFunctor {
 }
 ```
 
-# 用 Monad 隔离副作用
+## 用 Monad 隔离副作用
 
 IO 是 Haskell 中的一个 Monad（Haskell 选择将 Monad 显式地定义出来）。具体来说，Haskell 中的Monad 是一个 type class，可以暂时简单地理解为类似 `interface` 或 `trait` 的对方法的抽象，只是更加灵活。为了保证函数的纯正性，如果参数中包括 IO，Haskell 就要求返回值必须存在 IO。因此这样的"伪装"变得不可能：
 

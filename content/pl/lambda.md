@@ -3,9 +3,11 @@ title = 'Lambda Calculus and Y Combinator'
 math = true
 +++
 
-# λ 演算
+# Lambda 演算与 Y 组合子
 
-## λ 项
+## λ 演算
+
+### λ 项
 
 只有三种有效的 λ 项：
 
@@ -13,7 +15,7 @@ math = true
 -   一个抽象 $\lambda f.\lambda x.x$，大致上等同于 Python 中的 `lambda f, x: x`
 -   函数的应用 $ts$，大致上等同于 Python 中的 `t(s)`
 
-## α-等价
+### α-等价
 
 在一个抽象中，变量的名字并不重要。例如 $\lambda x.x$ 和 $\lambda y.y$ 是 α-等价的。
 
@@ -25,7 +27,7 @@ math = true
 -   $\lambda x.t[x:=r]=\lambda x.t$，替换前后并没有区别（α-等价）
 -   $\lambda y.t[x:=r]=\lambda t.t[x:=r]$
 
-## 自由变量与约束变量
+### 自由变量与约束变量
 
 自由变量被定义为这样的集合：
 
@@ -35,7 +37,7 @@ math = true
 
 定义这些的目的是在进行β-归约时避免变量名的冲突。不严谨地说，自由变量就是"可以被替换"的变量集合。
 
-## β-归约
+### β-归约
 
 β-归约表示，在应用函数时，可以直接对结果中相应的变量进行替换。即，$(\lambda x.t)s=t[x:=s]$。
 
@@ -50,11 +52,11 @@ $$
 -   Church-Rosser 定理：如果一个 λ 项有范式，那么这个范式（在α-等价的意义上）是唯一的。
 -   对一个 λ 项，始终归约其最左侧最外侧的可约式，总能得到β-范式（如果存在）。
 
-## η-变换
+### η-变换
 
 η-变换并不是必需的，实际上它是前两者的一个推论：$\lambda x.f x=f$，其中 $x$ 不是 $f$ 中的自由变量。
 
-# 邱奇数
+## 邱奇数
 
 邱奇数是为 λ 演算而生的数的表示方式，同样基于皮亚诺公理（使用一个基础，即0或1，以及一个后继的定义来描述自然数）。我们令：
 
@@ -80,7 +82,7 @@ $$
 \begin{align\*} \operatorname{mult}&=\lambda m.\lambda n.\lambda f.n(m\ f)\\\\ \operatorname{exp}&=\lambda m.\lambda n.n\ m\\\\ \operatorname{pred}&=\lambda n.\lambda f.\lambda x.n(\lambda g.\lambda h.h(g\ f))(\lambda u.x)(\lambda u.u)\\\\ \operatorname{sub}&=\lambda m.\lambda n.m\ \operatorname{pred}\ n \end{align\*}
 $$
 
-# 邱奇逻辑
+## 邱奇逻辑
 
 $$
 \begin{align\*} \operatorname{true}&=\lambda a.\lambda b.a\\\\ \operatorname{false}&=\lambda a.\lambda b.b\\\\ \operatorname{and} &= \lambda p.\lambda q.p\ q\ p\\\\ \operatorname{or} &= \lambda p.\lambda q.p\ p\ q\\\\ \operatorname{if} &= \lambda p.\lambda a.\lambda b.p\ a\ b \end{align\*}
@@ -92,7 +94,7 @@ $$
 \begin{align\*} \operatorname{iszero}&=\lambda n.n (\lambda x.\operatorname{false}) \operatorname{true}\\\\ \operatorname{leq}&=\lambda m.\lambda n.\operatorname{iszero} (\operatorname{sub}m\ n)\\\\ \operatorname{eq}&=\lambda m.\lambda n. \operatorname{and} (\operatorname{leq}m\ n)(\operatorname{leq}n\ m) \end{align\*}
 $$
 
-# Y 组合子
+## Y 组合子
 
 接下来考虑一个递归函数：
 
