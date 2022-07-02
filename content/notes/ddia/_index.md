@@ -1,9 +1,9 @@
 +++
-title = 'Design of Data Intensive Applications'
+title = 'Designing Data-Intensive Applications'
 bookCollapseSection = true
 +++
 
-# Design of Data Intensive Applications
+# Designing Data-Intensive Applications
 
 {{< section >}}
 
