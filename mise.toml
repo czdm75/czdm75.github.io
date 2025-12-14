@@ -1,0 +1,7 @@
+[tools]
+"cargo:mdbook-graphviz" = "latest"
+"cargo:mdbook-mermaid" = "latest"
+"cargo:mdbook-pagetoc" = "latest"
+markdownlint-cli2 = "latest"
+mdbook = "latest"
+rust = "stable"

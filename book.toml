@@ -1,0 +1,17 @@
+[book]
+title = "czdm75 blog"
+authors = ["czdm75"]
+language = "en"
+
+[output.html]
+no-section-label = true
+git-repository-url = "https://github.com/czdm75/czdm.75.github.io"
+
+[output.html.fold]
+enable = true
+
+[preprocessor.graphviz]
+
+[preprocessor.mermaid]
+
+[preprocessor.pagetoc]

@@ -1,0 +1,183 @@
+#set heading(numbering: "1.")
+
+#let statement(body, supplement) = block({
+  strong({
+    supplement
+    [. ]
+  })
+  body
+})
+
+#let definition(body) = statement(body, "Definition")
+#let axiom(body) = statement(body, "Axiom")
+#let lemma(body) = statement(body, "Lemma")
+#let theorem(body) = statement(body, "Theorem")
+
+= 从自然数到有理数
+
+== 皮亚诺公理和自然数的定义
+
+=== 皮亚诺公理 Peano Axioms
+
+#axiom[html.frame(
+  $0 in NN$
+)]
+#axiom[
+  $forall n in NN, n^+ in NN$
+]
+#axiom[
+  $forall n in NN, 0 != n^+$
+]
+#axiom[
+  $forall n,m in NN, n != m => n^+ != m^+$
+]
+#axiom[
+  $P(0) and (forall n in NN, P(n) => P(n^+)) => forall n in NN, P(n)$
+]
+
+=== Recursive Definition
+
+== Addition
+
+=== Definition of Addition
+
+#definition[
+  Addition of natural numbers (Through Recursive Definition)
+  + $forall n in NN, 0 + n = n$
+  + $forall n, m in NN, n^++m=(n+m)^+$
+]
+
+#lemma[
+  $forall n in NN, n + 0 = n$
+]
+
+#lemma[
+  $forall n, m in NN, n + m^+ = (n+m)^+$
+]
+
+=== Theorems around Addition
+
+#theorem[
+  Transitivity.
+  
+  $forall n, m in NN, n+m=m+n$
+]
+#theorem[
+  Associativity.
+  
+  $forall a, b, c in NN, (a+b)+c = a+(b+c)$
+]
+#theorem[
+  Elimination.
+  
+  $forall a, b, c in NN, a+b=a+c => b=c$
+]
+
+=== Definition of Positive Natural Number
+
+#definition[
+  Positive natural number ($NN^+$, non-zero nat number)
+]
+
+#lemma[
+  $forall n, m in NN, n in NN^+ => n+m in NN^+$
+]
+
+#lemma[
+  $forall n, m in NN, n+m=0 => n=0 and m=0$
+]
+
+#lemma[
+  $forall n in NN^+, exists! m in NN. m^+=n$
+]
+
+=== Ordering of Natural Numbers
+
+#definition[
+  Ordering.
+  
+  + $forall n, m in NN, n >= m <=> exists a in NN. n=m+a$
+  
+  + $forall n, m in NN, n > m <=> exists a in NN^+. n=m+a$
+]
+
+#theorem[
+  natures of ordering.
+
+  + $a >= a$
+  + $a >= b and b >= c => a >= c$
+  + $a>=b and b>=a => a=b$
+  + $a >= b <=> a+c >= b+c$
+  + $a < b <=> a^+ <= b$
+]
+
+#theorem[
+  Trifidelity.
+
+  $forall a, b in NN, a > b or a < b or a = b$
+]
+
+=== Strong Induction
+
+== Multiplication
+
+=== Definition of Multiplication
+
+#definition[
+  + $0 m := 0$
+  + $forall n in NN, n^+ m := n m + m$
+]
+
+#lemma[
+  Transitivity.
+
+  $n m = m n$
+]
+
+#lemma[
+  + $forall n,m in NN, n m = 0 => n=0 or m=0$
+  + $forall n,m in NN^+, n m in NN^+$
+]
+
+#lemma[
+  Distribution
+
+  $forall a,b,c in NN. (a+b)c = a c + b c$
+]
+
+#lemma[
+  Associativity.
+
+  $(a b)c = a (b c)$
+]
+
+#lemma[
+  Multiplication Keeps Ordering.
+
+  $forall a,b in NN, c in NN^+. a < b => a c < b c$
+]
+
+#lemma[
+  Elimination.
+
+  $forall a,b in NN, c in NN^+. a c = b c => a = b$
+]
+
+#lemma[
+  Euclid Algorithm
+
+  $forall n in NN, q in NN^+. exists m r in NN. 0 <= r < q and n = m q + r$
+]
+
+#definition[
+  Exponencial
+
+  + $forall n in NN, n^0 := 1$
+  + $forall n, m in NN, n^m^+ := n^m n$
+]
+
+= Set Theory
+
+= Integers and Rational Numbers
+
+= Real Numbers

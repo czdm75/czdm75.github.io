@@ -1,0 +1,104 @@
+<!-- markdownlint-disable MD025 MD042 -->
+
+# czdm75 Blog
+
+[Index](./index.md)
+
+# Reading Notes
+
+- [写给大忙人看的 Java 核心技术](./reading-notes/core-java-impatient/index.md)
+  - [01. 基本的编程结构](./reading-notes/core-java-impatient/01-fundamental-programming-structures.md)
+  - [02. 面向对象编程](./reading-notes/core-java-impatient/02-object-oriented-programming.md)
+  - [03. 接口与Lambda表达式](./reading-notes/core-java-impatient/03-interfaces-and-lambda-expressions.md)
+  - [04. 继承与反射](./reading-notes/core-java-impatient/04-inheritance-and-reflection.md)
+  - [05. 异常、断言与日志](./reading-notes/core-java-impatient/05-exceptions-assertions-and-logging.md)
+  - [06. 泛型编程](./reading-notes/core-java-impatient/06-generic-programming.md)
+  - [07. 集合](./reading-notes/core-java-impatient/07-collections.md)
+  - [08. 流](./reading-notes/core-java-impatient/08-streams.md)
+  - [09. 输入与输出处理](./reading-notes/core-java-impatient/09-processing-input-and-output.md)
+  - [10. 并发编程](./reading-notes/core-java-impatient/10-concurrent-programming.md)
+  - [11. 注解](./reading-notes/core-java-impatient/11-annotations.md)
+
+- [深入理解JVM](./reading-notes/in-depth-jvm/index.md)
+  - [GC](./reading-notes/in-depth-jvm/gc.md)
+  - [内存布局](./reading-notes/in-depth-jvm/memory-layout.md)
+  - [内存模型](./reading-notes/in-depth-jvm/memory-model.md)
+  - [同步](./reading-notes/in-depth-jvm/synchronization.md)
+  - [线程](./reading-notes/in-depth-jvm/threads.md)
+  - [ThreadLocal引用](./reading-notes/in-depth-jvm/threadlocal-reference.md)
+
+- [Designing Data-Intensive Applications](./reading-notes/ddia/index.md)
+  - [01. 可靠、可扩展与可维护的应用](./reading-notes/ddia/01-reliable-scalable-and-maintainable-applications.md)
+  - [02. 数据模型与查询语言](./reading-notes/ddia/02-data-models-and-query-languages.md)
+  - [03. 存储与检索](./reading-notes/ddia/03-storage-and-retreival.md)
+  - [04. 编码与演化](./reading-notes/ddia/04-encoding-and-evolution.md)
+  - [05. 复制](./reading-notes/ddia/05-replication.md)
+  - [06. 分区](./reading-notes/ddia/06-partitioning.md)
+  - [07. 事务]()
+  - [08. 分布式系统的难题]()
+  - [09. 一致性与共识]()
+  - [10. 批处理]()
+  - [11. 流处理]()
+  - [12. 数据系统的未来]()
+
+- [Programming in Scala](./reading-notes/programming-in-scala/index.md)
+  - [01. 简介](./reading-notes/programming-in-scala/01-intro.md)
+  - [02. 基本类型](./reading-notes/programming-in-scala/02-basic-types.md)
+  - [03. 构造器](./reading-notes/programming-in-scala/03-constructors.md)
+  - [04. 控制流](./reading-notes/programming-in-scala/04-control-flow.md)
+  - [05. 函数与闭包](./reading-notes/programming-in-scala/05-functions-and-closure.md)
+  - [06. 控制抽象](./reading-notes/programming-in-scala/06-control-abstraction.md)
+  - [07. 组合与继承](./reading-notes/programming-in-scala/07-composition-and-inheritance.md)
+  - [08. 类型层次](./reading-notes/programming-in-scala/08-type-hierarchy.md)
+  - [09. 特质](./reading-notes/programming-in-scala/09-traits.md)
+  - [10. 包与访问控制](./reading-notes/programming-in-scala/10-package-and-access-control.md)
+  - [11. 断言](./reading-notes/programming-in-scala/11-assertion.md)
+  - [12. 模式匹配](./reading-notes/programming-in-scala/12-pattern-matching.md)
+  - [13. 列表](./reading-notes/programming-in-scala/13-lists.md)
+  - [14. 集合](./reading-notes/programming-in-scala/14-collections.md)
+  - [15. 可变对象](./reading-notes/programming-in-scala/15-mutable-objects.md)
+  - [16. 类型参数化](./reading-notes/programming-in-scala/16-type-paramertization.md)
+  - [17. 抽象成员](./reading-notes/programming-in-scala/17-abstract-members.md)
+  - [18. 隐式定义](./reading-notes/programming-in-scala/18-implicit-definitions.md)
+  - [19. List与Buffer](./reading-notes/programming-in-scala/19-list-and-buffer.md)
+  - [20. for表达式](./reading-notes/programming-in-scala/20-for-expression.md)
+  - [21. Scala集合系统](./reading-notes/programming-in-scala/21-scala-collection-system.md)
+  - [22. 提取器](./reading-notes/programming-in-scala/22-extractors.md)
+  - [23. 注解](./reading-notes/programming-in-scala/23-annotations.md)
+  - [24. 对象相等性](./reading-notes/programming-in-scala/24-object-equality.md)
+
+- [算法导论笔记](./reading-notes/intro-algo/index.md)
+  - [01. 复杂度分析](./reading-notes/intro-algo/01-cost-analysis.md)
+  - [02. 排序](./reading-notes/intro-algo/02-sorting.md)
+  - [03. 链表与哈希表](./reading-notes/intro-algo/03-linked-list-and-hash-table.md)
+  - [04. 平衡树](./reading-notes/intro-algo/04-balanced-trees.md)
+  - [05. Trie树及扩展](./reading-notes/intro-algo/05-trie-tree-and-extension.md)
+  - [06. 动态规划](./reading-notes/intro-algo/06-dynamic-programming.md)
+  - [07. 贪心算法](./reading-notes/intro-algo/07-greedy-algorithms.md)
+  - [08. 均摊分析](./reading-notes/intro-algo/08-amortized-analysis.md)
+  - [09. B树](./reading-notes/intro-algo/09-b-trees.md)
+  - [10. 堆](./reading-notes/intro-algo/10-heaps.md)
+  - [11. 并查集](./reading-notes/intro-algo/11-data-structure-for-disjoint-sets.md)
+  - [12. 图算法](./reading-notes/intro-algo/12-graph-algorithms.md)
+
+- [Analysis I](./reading-notes/analysis-i/1.typst)
+
+# Computer Science
+
+- [Linux IO]()
+
+# Distributed Systems
+
+- [Hadoop基础](./distributed-systems/hadoop-basics.md)
+- [Spark RDD](./distributed-systems/spark-rdd.md)
+- [Spark SQL](./distributed-systems/spark-sql.md)
+
+# Programming Languages
+
+- [Currying](./programming-languages/currying.md)
+- [Java NIO（一）](./programming-languages/java-nio-1.md)
+- [Java NIO（二）](./programming-languages/java-nio-2.md)
+- [Lambda](./programming-languages/lambda.md)
+- [Monad](./programming-languages/monad.md)
+
+# Links
