@@ -4,13 +4,21 @@ authors = ["czdm75"]
 language = "en"
 
 [output.html]
+additional-js = ["theme/pagetoc.js"]
+additional-css = [
+  "./theme/catppuccin.css",
+  "./theme/pagetoc.css"
+]
+
+default-theme="latte"
 no-section-label = true
+sidebar-header-nav = false
 git-repository-url = "https://github.com/czdm75/czdm.75.github.io"
 
 [output.html.fold]
 enable = true
 
-[preprocessor.graphviz]
+# [preprocessor.graphviz]
 
 [preprocessor.mermaid]
 

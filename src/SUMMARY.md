@@ -83,22 +83,19 @@
 
 - [Analysis I](./reading-notes/analysis-i/1.typst)
 
-# Computer Science
+# Articles
 
-- [Linux IO]()
-
-# Distributed Systems
-
-- [Hadoop基础](./distributed-systems/hadoop-basics.md)
-- [Spark RDD](./distributed-systems/spark-rdd.md)
-- [Spark SQL](./distributed-systems/spark-sql.md)
-
-# Programming Languages
-
-- [Currying](./programming-languages/currying.md)
-- [Java NIO（一）](./programming-languages/java-nio-1.md)
-- [Java NIO（二）](./programming-languages/java-nio-2.md)
-- [Lambda](./programming-languages/lambda.md)
-- [Monad](./programming-languages/monad.md)
+- [Computer Science]()
+  - [Linux IO]()
+- [Distributed Systems]()
+  - [Hadoop基础](./distributed-systems/hadoop-basics.md)
+  - [Spark RDD](./distributed-systems/spark-rdd.md)
+  - [Spark SQL](./distributed-systems/spark-sql.md)
+- [Programming Languages]()
+  - [Currying](./programming-languages/currying.md)
+  - [Java NIO（一）](./programming-languages/java-nio-1.md)
+  - [Java NIO（二）](./programming-languages/java-nio-2.md)
+  - [Lambda](./programming-languages/lambda.md)
+  - [Monad](./programming-languages/monad.md)
 
 # Links
