@@ -4,4 +4,4 @@ uv = "latest"
 
 [tasks.build]
 description = "Compile the whole site"
-run = "typst compile --features bundle,html --format bundle main.typst public"
+run = "typst compile --features bundle,html --format bundle main.typ public"

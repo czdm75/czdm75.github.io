@@ -1,6 +1,5 @@
 #let meta = (
   title: "最大似然估计",
-  slug: "max-likelihood-estimation",
   lang: "zh",
 )
 
