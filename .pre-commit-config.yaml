@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: typstyle
+        name: Format Typst files with typstyle
+        entry: typstyle --inplace --line-width 120
+        language: system
+        files: \.typ(st)?$
+

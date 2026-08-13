@@ -1,5 +1,7 @@
 [tools]
+pre-commit = "latest"
 typst = "latest"
+typstyle = "latest"
 uv = "latest"
 
 [tasks.build]
