@@ -1,9 +1,10 @@
 [tools]
 pre-commit = "latest"
+rust = "stable"
 typst = "latest"
 typstyle = "latest"
 uv = "latest"
 
 [tasks.build]
 description = "Compile the whole site"
-run = "typst compile --features bundle,html --format bundle main.typ public"
+run = "cargo run -- --input content --output public"

@@ -247,9 +247,9 @@ For Spark SQL to operate Hive, you need hive jars in classpath of every node and
 warehouse_location = abspath('spark-warehouse')
 
 # text file content:
-# 238val_238
-# 86val_86
-# 311val_311
+# 238\u0001val_238
+# 86\u0001val_86
+# 311\u0001val_311
 
 spark.sql("CREATE TABLE IF NOT EXISTS src (key INT, value STRING) USING hive")
 spark.sql("LOAD DATA LOCAL INPATH 'examples/src/main/resources/kv1.txt' INTO TABLE src")
