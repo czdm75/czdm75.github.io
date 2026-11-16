@@ -3,28 +3,28 @@
 <head>
 {{#if head_html}}{{{head_html}}}{{else}}<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">{{/if}}
 {{#unless has_title}}<title>{{title}}</title>{{/unless}}
-<link rel="stylesheet" href="{{prefix}}_theme/default/main.css?v={{revision}}">
+{{#each theme.stylesheets}}<link rel="stylesheet" href="{{this}}">{{/each}}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Noto+Serif+SC:wght@400;500;600;700&amp;display=swap">
-<script defer src="{{prefix}}_theme/default/main.js?v={{revision}}"></script>
+{{#each theme.scripts}}<script defer src="{{this}}"></script>{{/each}}
 </head>
-<body>
+<body class="{{#unless (or theme.options.site-tree (and theme.options.toc.enabled (eq theme.options.toc.mode "embedded")))}}no-site-tree{{/unless}} {{#unless (and theme.options.toc.enabled (eq theme.options.toc.mode "split"))}}no-toc{{/unless}} toc-{{theme.options.toc.mode}}">
 <header class="site-header">
   <a href="{{prefix}}index.html" class="site-name">文章与笔记</a>
 </header>
 <div id="grid-wrapper">
-  <nav id="tree-panel" aria-label="全站文章">
-    <button class="panel-toggle" type="button" data-toggle="tree" aria-label="折叠或展开文章树" aria-controls="tree-content" aria-expanded="true"><span class="panel-toggle-icon" aria-hidden="true">‹</span><span class="panel-label">全部文章</span></button>
-    <div id="tree-content" class="panel-content">{{> tree tree}}</div>
-  </nav>
+  {{#if (or theme.options.site-tree (and theme.options.toc.enabled (eq theme.options.toc.mode "embedded")))}}<nav id="tree-panel" data-tree-root="{{prefix}}index.html" aria-label="{{#if theme.options.site-tree}}全站文章{{else}}本页目录{{/if}}">
+    <button class="panel-toggle" type="button" data-toggle="tree" aria-label="折叠或展开左侧导航" aria-controls="tree-content" aria-expanded="true"><span class="panel-toggle-icon" aria-hidden="true">‹</span><span class="panel-label">{{#if theme.options.site-tree}}全部文章{{else}}本页目录{{/if}}</span></button>
+    <div id="tree-content" class="panel-content">{{#if theme.options.site-tree}}{{> tree tree options=theme.options outline=toc}}{{else}}{{> embedded-toc items=toc}}{{/if}}</div>
+  </nav>{{/if}}
   <article>{{#if is_index}}{{> index}}{{else}}{{> article}}{{/if}}</article>
-  <nav id="toc" aria-label="本页目录">
+  {{#if (and theme.options.toc.enabled (eq theme.options.toc.mode "split"))}}<nav id="toc" data-outline aria-label="本页目录">
     <button class="panel-toggle" type="button" data-toggle="toc" aria-label="折叠或展开本页目录" aria-controls="toc-content" aria-expanded="true"><span class="panel-label">本页目录</span><span class="panel-toggle-icon" aria-hidden="true">›</span></button>
     <div id="toc-content" class="panel-content">
-    {{#if is_index}}<p class="empty-toc">选择左侧主题，或浏览文章列表。</p>{{else}}<div class="toc-content">{{> toc items=toc}}</div>{{/if}}
+    {{#if is_index}}<p class="empty-toc">选择主题，或浏览文章列表。</p>{{else}}<div class="toc-content">{{> toc items=toc}}</div>{{/if}}
     </div>
-  </nav>
+  </nav>{{/if}}
 </div>
 </body>
 </html>

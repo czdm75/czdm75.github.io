@@ -3,11 +3,12 @@ mod inspect;
 mod options;
 mod output;
 mod source;
+mod theme;
 mod world;
 
 use anyhow::Result;
 use clap::Parser;
-use options::{Mode, Options};
+use options::{Cli, Mode};
 use typst_bundle::Bundle;
 use world::SiteWorld;
 
@@ -22,15 +23,16 @@ fn compile(world: &SiteWorld) -> Result<Bundle> {
 }
 
 fn main() -> Result<()> {
-    let options = Options::parse();
+    let cli = Cli::parse();
     let root = std::env::current_dir()?.canonicalize()?;
+    let options = cli.resolve(&root)?;
     let source = source::prepare(&root, &options.input)?;
     let world = SiteWorld::new(&root, source.id, source.generated, &options)?;
     let bundle = compile(&world)?;
     let pages = inspect::pages(&bundle);
     let exported = output::export(&bundle)?;
     let prepared = match options.mode {
-        Mode::Site => assemble::assemble(exported, &pages)?,
+        Mode::Site => assemble::assemble(exported, &pages, &options.theme)?,
         Mode::Raw => output::with_metadata(exported, &pages)?,
     };
     output::write(prepared, &pages, &options)?;

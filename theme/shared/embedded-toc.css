@@ -1,0 +1,14 @@
+/* A page outline nested under its current article, following mdBook's UI. */
+.on-this-page {
+  margin: .5rem 0 1rem .65rem;
+  padding-left: .65rem;
+  border-left: 3px solid var(--sidebar-header-border-color, var(--border-color));
+  font-size: .8rem;
+  line-height: 1.4;
+}
+.on-this-page ul { list-style: none; margin: 0; padding: 0; }
+.on-this-page li > ul { padding-left: .7rem; }
+.on-this-page li { margin: .35rem 0; }
+.on-this-page .bullet { display: none; }
+.on-this-page a.toc-label { display: block; padding: .1rem 0; color: var(--sidebar-fg, var(--text-color)); text-decoration: none; overflow-wrap: anywhere; text-wrap: balance; }
+.on-this-page a.toc-label:hover { color: var(--sidebar-active, var(--target-color)); background: none; }

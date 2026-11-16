@@ -1,0 +1,155 @@
+/* Extracted from mdBook chrome.css (MPL-2.0); see NOTICE.md. */
+/* Menu Bar */
+
+#mdbook-menu-bar,
+#mdbook-menu-bar-hover-placeholder {
+    z-index: 101;
+    margin: auto calc(0px - var(--page-padding));
+}
+#mdbook-menu-bar {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    background-color: var(--bg);
+    border-block-end-color: var(--bg);
+    border-block-end-width: 1px;
+    border-block-end-style: solid;
+}
+#mdbook-menu-bar.sticky,
+#mdbook-menu-bar-hover-placeholder:hover + #mdbook-menu-bar,
+#mdbook-menu-bar:hover,
+html.sidebar-visible #mdbook-menu-bar {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0 !important;
+}
+#mdbook-menu-bar-hover-placeholder {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    height: var(--menu-bar-height);
+}
+#mdbook-menu-bar.bordered {
+    border-block-end-color: var(--table-border-color);
+}
+#mdbook-menu-bar .fa-svg, #mdbook-menu-bar .icon-button {
+    position: relative;
+    padding: 0 8px;
+    z-index: 10;
+    line-height: var(--menu-bar-height);
+    cursor: pointer;
+    transition: color 0.5s;
+}
+@media only screen and (max-width: 420px) {
+    #mdbook-menu-bar .fa-svg, #mdbook-menu-bar .icon-button {
+        padding: 0 5px;
+    }
+}
+
+.icon-button {
+    border: none;
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+.icon-button .fa-svg {
+    margin: 0;
+}
+
+.right-buttons {
+    margin: 0 15px;
+}
+.right-buttons a {
+    text-decoration: none;
+}
+
+.left-buttons {
+    display: flex;
+    margin: 0 5px;
+}
+html:not(.js) .left-buttons button {
+    display: none;
+}
+
+.menu-title {
+    display: inline-block;
+    font-weight: 200;
+    font-size: 2.4rem;
+    line-height: var(--menu-bar-height);
+    text-align: center;
+    margin: 0;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.menu-title {
+    cursor: pointer;
+}
+
+.menu-bar,
+.menu-bar:visited,
+.nav-chapters,
+.nav-chapters:visited,
+.mobile-nav-chapters,
+.mobile-nav-chapters:visited,
+.menu-bar .icon-button,
+.menu-bar a .fa-svg {
+    color: var(--icons);
+}
+
+.menu-bar .fa-svg:hover,
+.menu-bar .icon-button:hover,
+.nav-chapters:hover,
+.mobile-nav-chapters .fa-svg:hover {
+    color: var(--icons-hover);
+}
+
+/* Theme Menu Popup */
+
+.theme-popup {
+    position: absolute;
+    left: 10px;
+    top: var(--menu-bar-height);
+    z-index: 1000;
+    border-radius: 4px;
+    font-size: 0.7em;
+    color: var(--fg);
+    background: var(--theme-popup-bg);
+    border: 1px solid var(--theme-popup-border);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: none;
+    /* Don't let the children's background extend past the rounded corners. */
+    overflow: hidden;
+}
+[dir=rtl] .theme-popup { left: unset;  right: 10px; }
+.theme-popup .default {
+    color: var(--icons);
+}
+.theme-popup .theme {
+    width: 100%;
+    border: 0;
+    margin: 0;
+    padding: 2px 20px;
+    line-height: 25px;
+    white-space: nowrap;
+    text-align: start;
+    cursor: pointer;
+    color: inherit;
+    background: inherit;
+    font-size: inherit;
+    text-transform: capitalize;
+}
+.theme-popup .theme:hover {
+    background-color: var(--theme-hover);
+}
+
+.theme-selected::before {
+    display: inline-block;
+    content: "✓";
+    margin-inline-start: -14px;
+    width: 14px;
+}
+

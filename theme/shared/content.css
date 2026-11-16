@@ -1,0 +1,38 @@
+/* Shared content typography. Historical sources: ../default/NOTICE.md. */
+article :is(h1,h2,h3,h4,h5,h6) { font-weight: 600; line-height: 1.5; margin: 1.2em 0 .5em; }
+article p { margin: 0 0 1em; }
+article :is(ul,ol) { padding-left: 1.5em; }
+article li { margin-block: .2em; }
+article :is(pre,code) { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; }
+article code { font-size: .9em; background: color-mix(in srgb, var(--text-color) 5%, transparent); border-radius: 3px; padding: .1em .25em; }
+article pre { font-size: .875rem; line-height: 1.65; background: color-mix(in srgb, var(--text-color) 4%, transparent); border-radius: 5px; padding: 1rem; overflow-x: auto; }
+article pre code { font-size: inherit; background: none; padding: 0; }
+article blockquote { margin: 1.25rem 0; padding: .25rem 1rem; border-left: 3px solid var(--border-color); color: var(--slug-color); }
+article figure { margin: 1.5rem 0; text-align: center; }
+article figcaption { font-size: .875rem; color: var(--slug-color); }
+article :is(img,svg) { max-width: 100%; }
+article table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin-bottom: 1rem; }
+article :is(th,td) { border-bottom: 1px solid var(--border-color); padding: .5rem .75rem; text-align: left; }
+article hr { border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0; }
+article mark { background: light-dark(#fff2ab, #5e5120); color: inherit; }
+
+.article-content > :is(h1,h2,h3,h4,h5,h6) { font-size: 1.1rem; }
+.article-content > :is(h1,h2,h3,h4,h5,h6):first-child,
+.page-heading h1 { font-size: 1.6rem; margin-top: 0; margin-bottom: 1rem; }
+article a { text-decoration: underline; text-underline-offset: .2em; }
+article math[display="block"] { overflow-x: auto; padding-block: .5rem; }
+.typst-block { overflow-x: auto; text-align: center; }
+
+.index-page header { padding: .5rem 0 2rem; border-bottom: 1px solid color-mix(in srgb, var(--text-color) 12%, transparent); }
+.index-page h1 { font-size: 2.2rem; margin: .4rem 0; }
+.eyebrow, .article-count { font-size: .75rem; letter-spacing: .08em; color: var(--slug-color); }
+.index-intro { color: var(--slug-color); margin: .7rem 0; }
+.index-group { margin-top: 1.75rem; }
+.index-group h2 { font-size: 1rem; font-weight: 600; color: var(--slug-color); }
+.index-articles { list-style: none; padding: 0; margin: .5rem 0; }
+.index-articles:empty { display: none; }
+.index-articles li { border-bottom: 1px solid color-mix(in srgb, var(--text-color) 8%, transparent); }
+.index-articles a { display: flex; flex-direction: column; padding: .8rem 0; text-decoration: none; }
+.index-articles a:hover span { text-decoration: underline; }
+.index-articles small { color: var(--slug-color); font-size: .75rem; margin-top: .15rem; }
+

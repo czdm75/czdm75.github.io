@@ -1,0 +1,19 @@
+# Engine settings. Paths are relative to this configuration file.
+mode = "site"
+input = "content"
+output = "public"
+math = "mathml"
+code-renderer = "typst"
+report = false
+# code-theme = "path/to/code.tmTheme"
+
+# Theme-owned presentation settings.
+[theme]
+name = "mdbook"
+# directory = "theme/mdbook" # Optional explicit theme package directory.
+[theme.options]
+site-tree = true
+
+[theme.options.toc]
+enabled = true
+mode = "split" # "embedded" nests the outline under the current article.

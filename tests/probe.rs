@@ -1,5 +1,134 @@
 use std::{fs, path::Path, process::Command};
 
+#[test]
+fn custom_theme_loads_and_updates_without_rebuilding_the_binary() {
+    let root =
+        std::env::temp_dir().join(format!("typst-ssg-runtime-package-{}", std::process::id()));
+    let package = root.join("theme/custom");
+    fs::create_dir_all(package.join("templates")).unwrap();
+    fs::create_dir_all(root.join("content")).unwrap();
+    fs::write(root.join("content/post.typ"), "= Runtime article").unwrap();
+    fs::write(
+        package.join("theme.toml"),
+        r#"
+template-dirs = ["templates"]
+stylesheets = ["_theme/custom/main.css"]
+[assets]
+"_theme/custom/main.css" = "main.css"
+"_theme/custom/image.bin" = "image.bin"
+[defaults.toolbar]
+enabled = true
+title = "Default toolbar"
+"#,
+    )
+    .unwrap();
+    let template = "<!doctype html><html><head>{{{head_html}}}{{#each theme.stylesheets}}<link rel=\"stylesheet\" href=\"{{this}}\">{{/each}}</head><body>Version 1 {{#if theme.options.toolbar.enabled}}<aside>{{theme.options.toolbar.title}}</aside>{{/if}} {{{body_html}}}</body></html>";
+    fs::write(package.join("templates/page.hbs"), template).unwrap();
+    fs::write(package.join("main.css"), "/* version 1 */").unwrap();
+    fs::write(package.join("image.bin"), [0, 255, 128]).unwrap();
+    let run = |args: &[&str]| {
+        let result = Command::new(env!("CARGO_BIN_EXE_typst-ssg"))
+            .current_dir(&root)
+            .args(args)
+            .output()
+            .unwrap();
+        assert!(
+            result.status.success(),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+    };
+    run(&[
+        "--theme=custom",
+        "--output=first",
+        "--theme-option=toolbar.title=\"<Custom>\"",
+    ]);
+    let first = fs::read_to_string(root.join("first/post/index.html")).unwrap();
+    assert!(first.contains("Version 1"));
+    assert!(first.contains("<aside>&lt;Custom&gt;</aside>"));
+    assert!(first.contains("Runtime article"));
+    assert!(first.contains("../_theme/custom/main.css"));
+    assert_eq!(
+        fs::read(root.join("first/_theme/custom/image.bin")).unwrap(),
+        [0, 255, 128]
+    );
+
+    // The exact same binary reads an explicit package directory and its latest files.
+    fs::rename(&package, root.join("skin")).unwrap();
+    fs::write(
+        root.join("skin/templates/page.hbs"),
+        template.replace("Version 1", "Version 2"),
+    )
+    .unwrap();
+    fs::write(root.join("skin/main.css"), "/* version 2 */").unwrap();
+    run(&[
+        "--theme=unregistered",
+        "--theme-dir=skin",
+        "--output=second",
+        "--theme-option=toolbar.enabled=false",
+    ]);
+    let second = fs::read_to_string(root.join("second/post/index.html")).unwrap();
+    assert!(second.contains("Version 2"));
+    assert!(!second.contains("<aside>"));
+    assert!(!second.contains("Version 1"));
+    assert_eq!(
+        fs::read_to_string(root.join("second/_theme/custom/main.css")).unwrap(),
+        "/* version 2 */"
+    );
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn toml_config_builds_with_relative_paths_and_cli_theme_overrides() {
+    let root = std::env::temp_dir().join(format!("typst-ssg-toml-build-{}", std::process::id()));
+    fs::create_dir_all(root.join("settings/articles")).unwrap();
+    fs::write(
+        root.join("settings/articles/post.typ"),
+        "= Config article\n\n== Child\n\nContent.",
+    )
+    .unwrap();
+    fs::write(
+        root.join("settings/site.toml"),
+        r#"
+input = "articles"
+output = "build"
+report = true
+[theme]
+name = "mdbook"
+[theme.options.toc]
+enabled = false
+mode = "embedded"
+"#,
+    )
+    .unwrap();
+    let run = |args: &[&str]| {
+        let result = Command::new(env!("CARGO_BIN_EXE_typst-ssg"))
+            .current_dir(&root)
+            .arg("--config=settings/site.toml")
+            .args(args)
+            .output()
+            .unwrap();
+        assert!(
+            result.status.success(),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+    };
+    run(&[]);
+    let hidden = fs::read_to_string(root.join("settings/build/post/index.html")).unwrap();
+    assert!(hidden.contains("_theme/mdbook/variables.css"));
+    assert!(hidden.contains("id=\"ssg-heading-1\""));
+    assert!(!hidden.contains("class=\"on-this-page\""));
+    assert!(root.join("settings/build/ssg-report.json").exists());
+    assert!(!root.join("build").exists());
+    run(&["--output=override", "--toc=true", "--report=false"]);
+    let visible = fs::read_to_string(root.join("override/post/index.html")).unwrap();
+    assert!(visible.contains("class=\"on-this-page\""));
+    assert!(!visible.contains("id=\"toc\""));
+    assert!(!root.join("override/ssg-report.json").exists());
+    fs::remove_dir_all(root).unwrap();
+}
+
 fn run(input: &str, output: &Path, mode: &str) -> serde_json::Value {
     let result = Command::new(env!("CARGO_BIN_EXE_typst-ssg"))
         .args([
@@ -198,6 +327,8 @@ fn typst_rendering_options() {
         let output = root.join(name);
         let result = Command::new(env!("CARGO_BIN_EXE_typst-ssg"))
             .args([
+                "--theme",
+                "default",
                 "--input",
                 "tests/fixtures/articles",
                 "--output",

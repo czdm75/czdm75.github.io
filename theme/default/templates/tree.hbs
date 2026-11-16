@@ -1,3 +1,3 @@
 <ul class="article-tree">
-{{#each entries}}{{#if is_folder}}<li class="tree-folder"><details{{#unless collapsed}} open{{/unless}}><summary>{{name}}</summary>{{> tree}}</details></li>{{else}}<li><a href="{{url}}"{{#if current}} aria-current="page"{{/if}}>{{title}}</a></li>{{/if}}{{/each}}
+{{#each entries}}{{#if is_folder}}<li class="tree-folder" data-tree-key="{{key}}"><details{{#if (or (not collapsed) (and current_ancestor ../options.toc.enabled (eq ../options.toc.mode "embedded")))}} open{{/if}}><summary>{{name}}</summary>{{> tree options=../options outline=../outline}}</details></li>{{else}}<li><a href="{{url}}"{{#if current}} aria-current="page"{{/if}}>{{title}}</a>{{#if (and current ../options.toc.enabled (eq ../options.toc.mode "embedded"))}}{{> embedded-toc items=../outline}}{{/if}}</li>{{/if}}{{/each}}
 </ul>

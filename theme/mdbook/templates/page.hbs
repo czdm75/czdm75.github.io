@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+{{! Adapted from mdBook front-end/templates/index.hbs; see ../NOTICE.md. }}
+<html lang="{{lang}}" class="light">
+<head>
+{{#if head_html}}{{{head_html}}}{{else}}<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">{{/if}}
+{{#unless has_title}}<title>{{title}}</title>{{/unless}}
+{{#each theme.stylesheets}}<link rel="stylesheet" href="{{this}}">{{/each}}
+<script>
+// Set the palette before paint, independently of the deferred UI scripts.
+(() => {
+  const palettes = ['light', 'rust', 'coal', 'navy', 'ayu'];
+  let theme;
+  try { theme = localStorage.getItem('mdbook-theme'); } catch {}
+  if (!palettes.includes(theme)) theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'navy' : 'light';
+  document.documentElement.className = `js ${theme}`;
+})();
+</script>
+{{#each theme.scripts}}<script defer src="{{this}}"></script>{{/each}}
+</head>
+<body class="mdbook {{#unless (or theme.options.site-tree (and theme.options.toc.enabled (eq theme.options.toc.mode "embedded")))}}no-site-tree{{/unless}} {{#unless (and theme.options.toc.enabled (eq theme.options.toc.mode "split"))}}no-toc{{/unless}} toc-{{theme.options.toc.mode}}">
+<a class="skip-link" href="#mdbook-content">跳到正文</a>
+<header id="mdbook-menu-bar" class="menu-bar sticky">
+  <div class="left-buttons">
+    {{#if (or theme.options.site-tree (and theme.options.toc.enabled (eq theme.options.toc.mode "embedded")))}}<button class="icon-button" type="button" data-toggle="tree" aria-label="折叠或展开左侧导航" aria-controls="tree-content" aria-expanded="true"><span aria-hidden="true">☰</span></button>{{/if}}
+    <details class="theme-picker">
+      <summary class="icon-button" aria-label="选择配色"><span aria-hidden="true">◐</span><span class="theme-picker-label">配色</span></summary>
+      <div class="theme-popup" aria-label="页面配色">
+        <button class="theme" type="button" data-theme="auto">跟随系统</button>
+        <button class="theme" type="button" data-theme="light">Light</button>
+        <button class="theme" type="button" data-theme="rust">Rust</button>
+        <button class="theme" type="button" data-theme="coal">Coal</button>
+        <button class="theme" type="button" data-theme="navy">Navy</button>
+        <button class="theme" type="button" data-theme="ayu">Ayu</button>
+      </div>
+    </details>
+  </div>
+  <a href="{{prefix}}index.html" class="menu-title">文章与笔记</a>
+  <div class="right-buttons">
+    {{#if (and theme.options.toc.enabled (eq theme.options.toc.mode "split"))}}<button class="icon-button" type="button" data-toggle="toc" aria-label="折叠或展开本页目录" aria-controls="toc-content" aria-expanded="true"><span aria-hidden="true">≡</span><span class="outline-label">本页目录</span></button>{{/if}}
+  </div>
+</header>
+<div id="grid-wrapper">
+  {{#if (or theme.options.site-tree (and theme.options.toc.enabled (eq theme.options.toc.mode "embedded")))}}<nav id="tree-panel" data-tree-root="{{prefix}}index.html" class="sidebar" aria-label="{{#if theme.options.site-tree}}全站文章{{else}}本页目录{{/if}}">
+    <div id="tree-content" class="sidebar-scrollbox"><p class="panel-heading">{{#if theme.options.site-tree}}全部文章{{else}}本页目录{{/if}}</p>{{#if theme.options.site-tree}}{{> tree tree options=theme.options outline=toc}}{{else}}{{> embedded-toc items=toc}}{{/if}}</div>
+  </nav>{{/if}}
+  <article id="mdbook-content" tabindex="-1">{{#if is_index}}{{> index}}{{else}}{{> article}}{{/if}}</article>
+  {{#if (and theme.options.toc.enabled (eq theme.options.toc.mode "split"))}}<nav id="toc" data-outline class="page-outline" aria-label="本页目录">
+    <div id="toc-content"><p class="panel-heading">本页目录</p>
+      {{#if is_index}}<p class="empty-toc">选择主题，或浏览文章列表。</p>{{else}}{{> toc items=toc}}{{/if}}
+    </div>
+  </nav>{{/if}}
+</div>
+</body>
+</html>

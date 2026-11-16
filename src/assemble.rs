@@ -1,38 +1,10 @@
-use crate::inspect::Page;
+use crate::{
+    inspect::Page,
+    theme::{Theme, ThemeOptions, ThemeView},
+};
 use anyhow::{Context, Result, ensure};
-use handlebars::Handlebars;
 use serde::Serialize;
 use std::collections::{BTreeMap, BTreeSet};
-
-const CSS: &str = include_str!("../theme/default/main.css");
-const JS: &str = include_str!("../theme/default/main.js");
-
-fn templates() -> Result<Handlebars<'static>> {
-    let mut registry = Handlebars::new();
-    registry.set_strict_mode(true);
-    for (name, source) in [
-        ("page", include_str!("../theme/default/templates/page.hbs")),
-        (
-            "article",
-            include_str!("../theme/default/templates/article.hbs"),
-        ),
-        (
-            "index",
-            include_str!("../theme/default/templates/index.hbs"),
-        ),
-        ("tree", include_str!("../theme/default/templates/tree.hbs")),
-        ("toc", include_str!("../theme/default/templates/toc.hbs")),
-        (
-            "index-tree",
-            include_str!("../theme/default/templates/index-tree.hbs"),
-        ),
-    ] {
-        registry
-            .register_template_string(name, source)
-            .with_context(|| format!("register theme template {name}"))?;
-    }
-    Ok(registry)
-}
 
 #[derive(Serialize)]
 struct PageView<'a> {
@@ -50,39 +22,34 @@ struct PageView<'a> {
     topic_count: usize,
     tree: TreeView,
     toc: Vec<TocItem>,
+    theme: ThemeView,
 }
 
 pub fn assemble(
     mut files: BTreeMap<String, Vec<u8>>,
     pages: &[Page],
+    options: &ThemeOptions,
 ) -> Result<BTreeMap<String, Vec<u8>>> {
-    let registry = templates()?;
+    let theme = Theme::load(options)?;
+    let registry = &theme.templates;
     let tree = article_tree(pages);
-    let revision = format!(
-        "{:x}",
-        CSS.bytes()
-            .chain(JS.bytes())
-            .fold(0xcbf29ce484222325u64, |hash, byte| (hash ^ u64::from(byte))
-                .wrapping_mul(0x100000001b3))
-    );
+    let revision = &theme.revision;
     for page in pages {
         let html = std::str::from_utf8(files.get(&page.path).context("missing page HTML")?)?;
         let prefix = "../".repeat(page.path.matches('/').count());
-        let view = article(html, page, &tree, &prefix, &revision)?;
+        let view = article(html, page, &tree, &prefix, revision, &theme)?;
         let rendered = registry
             .render("page", &view)
             .with_context(|| format!("render {}", page.path))?;
         files.insert(page.path.clone(), rendered.into_bytes());
     }
-    for (path, bytes) in [
-        ("_theme/default/main.css", CSS.as_bytes()),
-        ("_theme/default/main.js", JS.as_bytes()),
-    ] {
+    for asset in &theme.assets {
+        let path = asset.path.as_str();
         ensure!(
             !files.contains_key(path),
             "theme output conflicts with bundle file: {path}"
         );
-        files.insert(path.into(), bytes.to_vec());
+        files.insert(path.into(), asset.bytes.clone());
     }
     if !files.contains_key("index.html") {
         let view = PageView {
@@ -103,6 +70,7 @@ pub fn assemble(
                 .count(),
             tree: tree.view("", "", ""),
             toc: vec![],
+            theme: theme.view("", revision),
         };
         files.insert(
             "index.html".into(),
@@ -121,6 +89,7 @@ fn article<'a>(
     tree: &ArticleTree<'_>,
     prefix: &'a str,
     revision: &'a str,
+    theme: &Theme,
 ) -> Result<PageView<'a>> {
     let head_start = html.find("<head>").context("missing HTML head")? + 6;
     let head_end = html.find("</head>").context("missing HTML head end")?;
@@ -132,9 +101,10 @@ fn article<'a>(
         .and_then(|i| html[i..].split('>').next())
         .and_then(|t| attribute(t, "lang"))
         .unwrap_or("zh");
+    // The engine supplies stable anchors and outline data independently of presentation.
     let (body_html, targets) = heading_targets(&html[body_start..body_end], page)?;
-    let mut cursor = 0;
-    let toc = toc_items(page, &targets, &mut cursor, 0);
+    let toc = toc_items(page, &targets, &mut 0, 0);
+    let navigation = tree.view("", prefix, &page.path);
     Ok(PageView {
         title: page.title.as_deref().unwrap_or(&page.path),
         lang,
@@ -149,13 +119,14 @@ fn article<'a>(
         show_title: !page.toc.first().is_some_and(|h| h.level == 1),
         article_count: 0,
         topic_count: 0,
-        tree: tree.view("", prefix, &page.path),
+        tree: navigation,
         toc,
+        theme: theme.view(prefix, revision),
     })
 }
 
-#[derive(Serialize)]
-struct TocItem {
+#[derive(Clone, Serialize)]
+pub(crate) struct TocItem {
     text: String,
     url: Option<String>,
     children: Vec<TocItem>,
@@ -240,9 +211,11 @@ fn article_tree(pages: &[Page]) -> ArticleTree<'_> {
     root
 }
 #[derive(Serialize)]
-struct TreeView {
+pub(crate) struct TreeView {
     is_folder: bool,
     collapsed: bool,
+    current_ancestor: bool,
+    key: String,
     name: String,
     path: String,
     entries: Vec<TreeItem>,
@@ -276,46 +249,58 @@ impl ArticleTree<'_> {
         }
     }
     fn view(&self, path: &str, prefix: &str, current: &str) -> TreeView {
+        self.view_at(path, prefix, current, "")
+    }
+    fn view_at(&self, path: &str, prefix: &str, current: &str, key: &str) -> TreeView {
+        let entries: Vec<_> = self
+            .entries
+            .iter()
+            .map(|entry| match entry {
+                TreeEntry::Folder(group_key, name, child) => {
+                    let child_path = if path.is_empty() {
+                        name.to_string()
+                    } else {
+                        format!("{path} / {name}")
+                    };
+                    // Length prefixes distinguish paths even when group keys contain separators.
+                    let child_key = format!("{key}{}:{group_key}", group_key.len());
+                    let mut view = child.view_at(&child_path, prefix, current, &child_key);
+                    view.name = (*name).into();
+                    TreeItem::Folder(view)
+                }
+                TreeEntry::Page(page) => TreeItem::Page(ArticleLink {
+                    is_folder: false,
+                    title: page
+                        .navigation
+                        .as_ref()
+                        .and_then(|nav| nav.title.as_deref())
+                        .or(page.title.as_deref())
+                        .unwrap_or_else(|| {
+                            page.path
+                                .trim_end_matches("/index.html")
+                                .rsplit('/')
+                                .next()
+                                .unwrap_or(&page.path)
+                        })
+                        .into(),
+                    url: format!("{prefix}{}", escape_url(&page.path)),
+                    path: page.path.trim_end_matches("/index.html").into(),
+                    current: page.path == current,
+                }),
+            })
+            .collect();
+        let current_ancestor = entries.iter().any(|entry| match entry {
+            TreeItem::Folder(folder) => folder.current_ancestor,
+            TreeItem::Page(page) => page.current,
+        });
         TreeView {
             is_folder: true,
             collapsed: self.collapsed,
+            current_ancestor,
+            key: key.into(),
             name: path.rsplit(" / ").next().unwrap_or("").into(),
             path: path.into(),
-            entries: self
-                .entries
-                .iter()
-                .map(|entry| match entry {
-                    TreeEntry::Folder(_, name, child) => {
-                        let child_path = if path.is_empty() {
-                            name.to_string()
-                        } else {
-                            format!("{path} / {name}")
-                        };
-                        let mut view = child.view(&child_path, prefix, current);
-                        view.name = (*name).into();
-                        TreeItem::Folder(view)
-                    }
-                    TreeEntry::Page(page) => TreeItem::Page(ArticleLink {
-                        is_folder: false,
-                        title: page
-                            .navigation
-                            .as_ref()
-                            .and_then(|nav| nav.title.as_deref())
-                            .or(page.title.as_deref())
-                            .unwrap_or_else(|| {
-                                page.path
-                                    .trim_end_matches("/index.html")
-                                    .rsplit('/')
-                                    .next()
-                                    .unwrap_or(&page.path)
-                            })
-                            .into(),
-                        url: format!("{prefix}{}", escape_url(&page.path)),
-                        path: page.path.trim_end_matches("/index.html").into(),
-                        current: page.path == current,
-                    }),
-                })
-                .collect(),
+            entries,
         }
     }
 }
@@ -436,7 +421,7 @@ fn heading_targets(body: &str, page: &Page) -> Result<(String, Vec<Option<String
     }
     Ok((result, targets))
 }
-fn escape_url(s: &str) -> String {
+pub(crate) fn escape_url(s: &str) -> String {
     let mut out = String::new();
     for b in s.bytes() {
         if b.is_ascii_alphanumeric() || b"-._~/".contains(&b) {
@@ -452,6 +437,218 @@ fn escape_url(s: &str) -> String {
 mod tests {
     use super::*;
     use crate::inspect::{Heading, PageKind};
+
+    fn load_theme(name: &str) -> Result<Theme> {
+        Theme::load(&ThemeOptions {
+            name: name.into(),
+            ..Default::default()
+        })
+    }
+
+    fn presentation_options(name: &str, tree: bool, toc: bool, mode: &str) -> ThemeOptions {
+        ThemeOptions {
+            name: name.into(),
+            options: toml::from_str(&format!(
+                "site-tree = {tree}\n[toc]\nenabled = {toc}\nmode = '{mode}'"
+            ))
+            .unwrap(),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn folder_keys_are_stable_across_pages_and_distinguish_duplicate_labels() {
+        let tree = ArticleTree {
+            collapsed: false,
+            entries: vec![
+                TreeEntry::Folder("first", "Same label", ArticleTree::default()),
+                TreeEntry::Folder("second", "Same label", ArticleTree::default()),
+            ],
+        };
+        let keys = |view: TreeView| {
+            view.entries
+                .into_iter()
+                .map(|entry| match entry {
+                    TreeItem::Folder(folder) => folder.key,
+                    TreeItem::Page(_) => unreachable!(),
+                })
+                .collect::<Vec<_>>()
+        };
+        let first = keys(tree.view("", "../../", "first/a/index.html"));
+        let second = keys(tree.view("", "../../../", "second/b/index.html"));
+        assert_eq!(first, second);
+        assert_ne!(first[0], first[1]);
+    }
+
+    #[test]
+    fn outline_data_and_body_anchors_do_not_depend_on_theme_visibility() -> Result<()> {
+        let page = page();
+        let tree = article_tree(std::slice::from_ref(&page));
+        let html = "<html><head></head><body><h1>One</h1><h2>Two</h2><h1>Three</h1></body></html>";
+        let visible = article(
+            html,
+            &page,
+            &tree,
+            "../../",
+            "revision",
+            &load_theme("default")?,
+        )?;
+        for name in ["default", "mdbook"] {
+            let options = presentation_options(name, true, false, "split");
+            let hidden = article(
+                html,
+                &page,
+                &tree,
+                "../../",
+                "revision",
+                &Theme::load(&options)?,
+            )?;
+            assert_eq!(hidden.body_html, visible.body_html);
+            assert_eq!(
+                serde_json::to_value(&hidden.toc)?,
+                serde_json::to_value(&visible.toc)?
+            );
+            assert!(!hidden.toc.is_empty());
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn embedded_outline_reveals_only_current_branch_and_stays_out_of_index_lists() -> Result<()> {
+        use crate::inspect::{Navigation, NavigationGroup};
+        let mut current = page();
+        let mut other = page();
+        other.path = "other/post/index.html".into();
+        for (page, name, order) in [(&mut current, "Current", 0), (&mut other, "Other", 1)] {
+            page.navigation = Some(Navigation {
+                groups: vec![NavigationGroup {
+                    key: name.into(),
+                    title: name.into(),
+                    collapsed: true,
+                }],
+                title: None,
+                order,
+            });
+        }
+        let html = "<html><head></head><body><h1>One</h1><h2>Two</h2><h1>Three</h1></body></html>";
+        let pages = [current, other];
+        for theme in ["default", "mdbook"] {
+            let files = assemble(
+                BTreeMap::from([
+                    (pages[0].path.clone(), html.as_bytes().to_vec()),
+                    (pages[1].path.clone(), html.as_bytes().to_vec()),
+                ]),
+                &pages,
+                &presentation_options(theme, true, true, "embedded"),
+            )?;
+            let output = std::str::from_utf8(&files[&pages[0].path])?;
+            assert!(output.contains("<details open><summary>Current</summary>"));
+            assert!(output.contains("<details><summary>Other</summary>"));
+            assert_eq!(output.matches("class=\"on-this-page\"").count(), 1);
+            let start = output.find("aria-current=\"page\"").unwrap();
+            let rest = &output[start..];
+            assert!(rest.find("class=\"on-this-page\"").unwrap() < rest.find("</li>").unwrap());
+            let index = std::str::from_utf8(&files["index.html"])?;
+            assert!(!index.contains("class=\"on-this-page\""));
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn themes_render_each_panel_combination_and_preserve_content() -> Result<()> {
+        let body = "<h1>Repeated</h1><h2>Repeated</h2><h1>Repeated</h1><pre><code style=\"color: red\">let x = 1;</code></pre><math><mi>x</mi></math><img src=\"image.svg\">";
+        let html = format!(
+            "<!doctype html><html lang=\"en\"><head><title>Compiler title</title><style>.typst {{ color: red; }}</style></head><body>{body}</body></html>"
+        );
+        for theme in ["default", "mdbook"] {
+            for site_tree in [false, true] {
+                for (toc, toc_mode) in [
+                    (false, "split"),
+                    (false, "embedded"),
+                    (true, "split"),
+                    (true, "embedded"),
+                ] {
+                    let left_panel = site_tree || (toc && toc_mode == "embedded");
+                    let right_panel = toc && toc_mode == "split";
+                    let options = presentation_options(theme, site_tree, toc, toc_mode);
+                    let page = page();
+                    let files = assemble(
+                        BTreeMap::from([
+                            (page.path.clone(), html.as_bytes().to_vec()),
+                            ("nested/post/image.svg".into(), b"svg".to_vec()),
+                        ]),
+                        &[page],
+                        &options,
+                    )?;
+                    for path in ["nested/post/index.html", "index.html"] {
+                        let output = std::str::from_utf8(&files[path])?;
+                        assert_eq!(output.contains("id=\"tree-panel\""), left_panel);
+                        assert_eq!(output.contains("id=\"toc\""), right_panel);
+                        assert_eq!(output.contains("data-toggle=\"tree\""), left_panel);
+                        assert_eq!(output.contains("data-toggle=\"toc\""), right_panel);
+                        assert_eq!(output.matches("<title>").count(), 1);
+                        let prefix = if path == "index.html" { "" } else { "../../" };
+                        for asset in &load_theme(theme)?.assets {
+                            assert!(files.contains_key(&asset.path));
+                            assert!(
+                                output
+                                    .replace("&#x3D;", "=")
+                                    .contains(&format!("{prefix}{}?v=", asset.path)),
+                                "missing asset {} in {path}",
+                                asset.path
+                            );
+                        }
+                        if theme == "mdbook" {
+                            for excluded in [
+                                "fonts.googleapis",
+                                "fonts.css",
+                                "editor.js",
+                                "ace.js",
+                                "highlight.js",
+                                "book.js\"",
+                            ] {
+                                assert!(!output.contains(excluded), "unexpected {excluded}");
+                            }
+                            assert!(!files.contains_key("_theme/default/main.css"));
+                        }
+                    }
+                    let output = std::str::from_utf8(&files["nested/post/index.html"])?;
+                    assert!(output.contains("<title>Compiler title</title>"));
+                    assert!(output.contains("<style>.typst { color: red; }</style>"));
+                    assert!(output.contains("<code style=\"color: red\">let x = 1;</code>"));
+                    assert!(output.contains("<math><mi>x</mi></math>"));
+                    assert_eq!(
+                        output.contains("class=\"on-this-page\""),
+                        toc && toc_mode == "embedded"
+                    );
+                    if toc {
+                        assert!(output.contains("id=\"ssg-heading-1\""));
+                        assert!(output.contains("href=\"#ssg-heading-1\""));
+                    }
+                    assert!(output.contains("id=\"ssg-heading-1\""));
+                    assert_eq!(files["nested/post/image.svg"], b"svg");
+                }
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn theme_resources_cannot_overwrite_bundle_assets() -> Result<()> {
+        for theme in ["default", "mdbook"] {
+            let path = load_theme(theme)?.assets[0].path.clone();
+            let result = assemble(
+                BTreeMap::from([(path.clone(), b"bundle asset".to_vec())]),
+                &[],
+                &ThemeOptions {
+                    name: theme.into(),
+                    ..Default::default()
+                },
+            );
+            assert!(result.unwrap_err().to_string().contains(&path));
+        }
+        Ok(())
+    }
     fn page() -> Page {
         Page {
             path: "nested/post/index.html".into(),
@@ -480,6 +677,7 @@ mod tests {
                 ("nested/post/image.svg".into(), b"image".to_vec()),
             ]),
             &[page],
+            &ThemeOptions::default(),
         )?;
         let output = std::str::from_utf8(&files["nested/post/index.html"])?;
         for value in [
@@ -503,8 +701,14 @@ mod tests {
         let page = page();
         let tree = article_tree(std::slice::from_ref(&page));
         let view = tree.view("", "../../", &page.path);
-        let templates = templates()?;
-        let navigation = templates.render("tree", &view)?;
+        let theme = load_theme("default")?;
+        let templates = &theme.templates;
+        let context =
+            serde_json::json!({"tree": &view, "theme": theme.view("", "revision"), "toc": []});
+        let navigation = templates.render_template(
+            "{{> tree tree options=theme.options outline=toc}}",
+            &context,
+        )?;
         assert!(navigation.contains("<summary>nested</summary>"));
         assert!(navigation.contains("../../nested/post/index.html"));
         assert!(navigation.contains("aria-current=\"page\""));
@@ -514,8 +718,11 @@ mod tests {
     }
     #[test]
     fn templates_escape_labels_and_reject_missing_fields() -> Result<()> {
-        let registry = templates()?;
+        let theme = load_theme("default")?;
+        let registry = &theme.templates;
         let tree = TreeView {
+            current_ancestor: false,
+            key: String::new(),
             name: String::new(),
             path: String::new(),
             is_folder: true,
@@ -528,7 +735,12 @@ mod tests {
                 current: false,
             })],
         };
-        let rendered = registry.render("tree", &tree)?;
+        let context =
+            serde_json::json!({"tree": &tree, "theme": theme.view("", "revision"), "toc": []});
+        let rendered = registry.render_template(
+            "{{> tree tree options=theme.options outline=toc}}",
+            &context,
+        )?;
         assert!(!rendered.contains("<script>"));
         assert!(rendered.contains("&lt;script&gt;"));
         assert!(rendered.contains("post%20name/index.html"));

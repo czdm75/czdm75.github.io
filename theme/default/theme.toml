@@ -1,0 +1,26 @@
+# Directories are loaded in order; later templates override earlier names.
+template-dirs = ["templates", "../shared"]
+stylesheets = ["_theme/default/main.css", "_theme/shared/content.css", "_theme/shared/embedded-toc.css"]
+scripts = ["_theme/default/main.js"]
+
+# Output path = source path relative to this manifest.
+[assets]
+"_theme/default/main.css" = "main.css"
+"_theme/default/main.js" = "main.js"
+"_theme/shared/content.css" = "../shared/content.css"
+"_theme/shared/embedded-toc.css" = "../shared/embedded-toc.css"
+
+# Theme-owned defaults and optional validation rules.
+[defaults]
+site-tree = true
+[defaults.toc]
+enabled = true
+mode = "split"
+
+[option-schema.site-tree]
+type = "boolean"
+[option-schema."toc.enabled"]
+type = "boolean"
+[option-schema."toc.mode"]
+type = "string"
+enum = ["embedded", "split"]
