@@ -24,30 +24,41 @@ pub fn prepare(root: &Path, input: &Path) -> Result<Entry> {
         });
     }
     let files = discover(&input, &input)?;
-    if files.is_empty() {
+    if files.is_empty() && !input.join("summary.typ").is_file() {
         bail!("no Typst articles found in {}", input.display());
     }
     // The entry exists only in memory. No generated source is written into the repository.
     Ok(Entry {
         id: file_id(Path::new(".ssg-entry.typ"))?,
-        generated: Some(generate(root, files)?),
+        generated: Some(generate(root, &input, files)?),
     })
 }
 
-fn generate(root: &Path, files: BTreeMap<PathBuf, PathBuf>) -> Result<String> {
+fn generate(root: &Path, input: &Path, files: BTreeMap<PathBuf, PathBuf>) -> Result<String> {
     let articles = files
         .into_iter()
         .map(|(route, file)| -> Result<String> {
             let source = format!("/{}", utf8(file.strip_prefix(root)?)?);
             Ok(format!(
-                "  (source: {}, output: {}),\n",
+                "  (source: {}, output: {}, path: {}),\n",
                 literal(&source),
-                literal(utf8(&route)?)
+                literal(utf8(&route)?),
+                literal(utf8(file.strip_prefix(input)?)?)
             ))
         })
         .collect::<Result<String>>()?;
+    let summary = input.join("summary.typ");
+    let selection = if summary.is_file() {
+        format!(
+            "{}\n#import {}: summary\n#let articles = select-summary(summary, articles)\n",
+            include_str!("summary.typ"),
+            literal(&format!("/{}", utf8(summary.strip_prefix(root)?)?)),
+        )
+    } else {
+        String::new()
+    };
     Ok(format!(
-        "{}\n#let articles = (\n{articles});\n{}",
+        "{}\n#let articles = (\n{articles});\n{selection}{}",
         include_str!("render.typ"),
         include_str!("bundle.typ")
     ))
@@ -61,6 +72,8 @@ fn discover(root: &Path, dir: &Path) -> Result<BTreeMap<PathBuf, PathBuf>> {
         let path = entry.path();
         let discovered = if kind.is_dir() {
             discover(root, &path)?
+        } else if path == root.join("summary.typ") {
+            continue;
         } else if kind.is_file()
             && matches!(
                 path.extension().and_then(|s| s.to_str()),

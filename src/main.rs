@@ -1,3 +1,4 @@
+mod assemble;
 mod inspect;
 mod options;
 mod output;
@@ -6,7 +7,7 @@ mod world;
 
 use anyhow::Result;
 use clap::Parser;
-use options::Options;
+use options::{Mode, Options};
 use typst_bundle::Bundle;
 use world::SiteWorld;
 
@@ -27,7 +28,12 @@ fn main() -> Result<()> {
     let world = SiteWorld::new(&root, source.id, source.generated, &options)?;
     let bundle = compile(&world)?;
     let pages = inspect::pages(&bundle);
-    output::write(&bundle, &pages, &options)?;
+    let exported = output::export(&bundle)?;
+    let prepared = match options.mode {
+        Mode::Site => assemble::assemble(exported, &pages)?,
+        Mode::Raw => output::with_metadata(exported, &pages)?,
+    };
+    output::write(prepared, &pages, &options)?;
     println!(
         "Exported {} pages to {}",
         pages.len(),

@@ -1,0 +1,1 @@
+{{#each entries}}{{#if is_folder}}<section class="index-group"><h2>{{path}}</h2>{{> index-tree}}</section>{{else}}<ul class="index-articles"><li><a href="{{url}}"><span>{{title}}</span><small>{{path}}</small></a></li></ul>{{/if}}{{/each}}

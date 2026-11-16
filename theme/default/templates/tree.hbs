@@ -1,0 +1,3 @@
+<ul class="article-tree">
+{{#each entries}}{{#if is_folder}}<li class="tree-folder"><details{{#unless collapsed}} open{{/unless}}><summary>{{name}}</summary>{{> tree}}</details></li>{{else}}<li><a href="{{url}}"{{#if current}} aria-current="page"{{/if}}>{{title}}</a></li>{{/if}}{{/each}}
+</ul>

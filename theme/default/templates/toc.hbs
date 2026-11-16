@@ -1,0 +1,3 @@
+{{#if items}}<ul>
+{{#each items}}<li>{{#if url}}<a class="bullet" href="{{url}}" aria-label="跳转到 {{text}}">■</a><a class="toc-label" href="{{url}}">{{text}}</a>{{else}}{{text}}{{/if}}{{> toc items=children}}</li>{{/each}}
+</ul>{{/if}}

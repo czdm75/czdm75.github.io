@@ -44,12 +44,35 @@ fn bundle_metadata_headings_and_highlight_modes() {
             .any(|c| c["language"] == "java")
     );
     assert_eq!(compiled["pages"], client["pages"]);
-    for page in compiled["pages"].as_array().unwrap() {
-        let sidecar = Path::new(page["path"].as_str().unwrap()).with_extension("json");
-        let saved: serde_json::Value =
-            serde_json::from_slice(&fs::read(temp.join("compiled").join(sidecar)).unwrap())
-                .unwrap();
-        assert_eq!(&saved, page);
+    let untitled = compiled["pages"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|page| page["path"] == "etc/tiktok-in-my-memory/index.html")
+        .unwrap();
+    assert_eq!(untitled["title"], "关于 TikTok 案的几句杂谈");
+    let html =
+        fs::read_to_string(temp.join("compiled/etc/tiktok-in-my-memory/index.html")).unwrap();
+    assert!(html.contains("<title>关于 TikTok 案的几句杂谈</title>"));
+    for name in ["计算机系统", "读书笔记"] {
+        assert!(html.contains(&format!("<details open><summary>{name}</summary>")));
+    }
+    for name in [
+        "I/O 与网络",
+        "编程语言",
+        "分布式系统与大数据",
+        "数学与统计",
+        "算法导论",
+        "写给大忙人看的 Java 核心技术",
+        "深入理解 Java 虚拟机",
+        "Scala 编程",
+        "设计数据密集型应用",
+        "杂谈",
+    ] {
+        assert!(
+            html.contains(&format!("<details><summary>{name}</summary>")),
+            "{name}"
+        );
     }
     let route = "cs/io/java-nio-1/index.html";
     let compiled_html = fs::read_to_string(temp.join("compiled").join(route)).unwrap();
@@ -100,6 +123,8 @@ fn bundle_metadata_headings_and_highlight_modes() {
     let pages = discovered["pages"].as_array().unwrap();
     assert_eq!(pages.len(), 2);
     assert_eq!(pages[0]["path"], "bare/index.html");
+    assert_eq!(pages[0]["title"], "Bare document");
+    assert_eq!(pages[1]["title"], "Another bare article");
     assert_eq!(pages[1]["path"], "nested/other/index.html");
     assert_eq!(pages[1]["metadata"], serde_json::json!([{}]));
     assert_eq!(pages[1]["toc"][0]["text"], "Another bare article");
@@ -127,12 +152,16 @@ fn first_pass_exports_html_and_metadata_without_debug_report() {
     for route in ["bare/index", "nested/other/index"] {
         let html = fs::read_to_string(output.join(format!("{route}.html"))).unwrap();
         assert!(html.starts_with("<!DOCTYPE html>"));
-        let metadata: serde_json::Value =
-            serde_json::from_slice(&fs::read(output.join(format!("{route}.json"))).unwrap())
-                .unwrap();
-        assert_eq!(metadata["path"], format!("{route}.html"));
-        assert_eq!(metadata["type"], "page");
-        assert!(!metadata["toc"].as_array().unwrap().is_empty());
+        assert!(html.contains("id=\"grid-wrapper\""));
+        assert!(html.contains("id=\"toc\""));
+        let title = if route == "bare/index" {
+            "Bare document"
+        } else {
+            "Another bare article"
+        };
+        assert!(html.contains(&format!("<title>{title}</title>")));
+        assert_eq!(html.matches("<title>").count(), 1);
+        assert!(!output.join(format!("{route}.json")).exists());
     }
     assert!(!output.join("ssg-report.json").exists());
     fs::remove_dir_all(output).unwrap();
@@ -145,6 +174,7 @@ fn first_pass_serializes_native_metadata() {
         .args([
             "--input",
             "tests/fixtures/non-json.typ",
+            "--report",
             "--output",
             output.to_str().unwrap(),
         ])
@@ -156,8 +186,8 @@ fn first_pass_serializes_native_metadata() {
         String::from_utf8_lossy(&result.stderr)
     );
     let metadata: serde_json::Value =
-        serde_json::from_slice(&fs::read(output.join("index.json")).unwrap()).unwrap();
-    assert_eq!(metadata["metadata"][0], "(..) => ..");
+        serde_json::from_slice(&fs::read(output.join("ssg-report.json")).unwrap()).unwrap();
+    assert_eq!(metadata["pages"][0]["metadata"][0], "(..) => ..");
     fs::remove_dir_all(output).unwrap();
 }
 
@@ -210,6 +240,201 @@ fn typst_rendering_options() {
     assert!(!client.contains("<svg"));
     assert!(!client.contains("color:"));
     assert!(client.contains("data-lang=\"rust\""));
-    assert!(!client.contains("<script"));
+    assert!(client.contains("_theme/default/main.js"));
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn raw_mode_exports_html_and_page_metadata() {
+    let output = std::env::temp_dir().join(format!("typst-ssg-raw-{}", std::process::id()));
+    let result = Command::new(env!("CARGO_BIN_EXE_typst-ssg"))
+        .args([
+            "--input",
+            "tests/fixtures/articles",
+            "--mode",
+            "raw",
+            "--output",
+            output.to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    for route in ["bare/index", "nested/other/index"] {
+        let html = fs::read_to_string(output.join(format!("{route}.html"))).unwrap();
+        assert!(html.starts_with("<!DOCTYPE html>"));
+        assert!(!html.contains("_theme/default"));
+        assert!(!html.contains("id=\"grid-wrapper\""));
+        let metadata: serde_json::Value =
+            serde_json::from_slice(&fs::read(output.join(format!("{route}.json"))).unwrap())
+                .unwrap();
+        assert_eq!(metadata["path"], format!("{route}.html"));
+        assert!(!metadata["toc"].as_array().unwrap().is_empty());
+    }
+    assert!(!output.join("index.html").exists());
+    assert!(!output.join("_theme").exists());
+    fs::remove_dir_all(output).unwrap();
+}
+
+#[test]
+fn summary_selects_orders_and_renames_navigation() {
+    let root = std::env::temp_dir().join(format!("typst-ssg-summary-{}", std::process::id()));
+    fs::create_dir_all(root.join("content/auto/nested")).unwrap();
+    fs::write(
+        root.join("content/a.typ"),
+        "#let meta = (title: \"Article A\")\n= Body A",
+    )
+    .unwrap();
+    fs::write(
+        root.join("content/b.typ"),
+        "#let meta = (title: \"Article B\")\n= Body B",
+    )
+    .unwrap();
+    fs::write(root.join("content/auto/z.typst"), "= Z").unwrap();
+    fs::write(
+        root.join("content/auto/a.typ"),
+        "#let meta = (title: \"Auto A\")\n= A",
+    )
+    .unwrap();
+    fs::write(root.join("content/auto/nested/c.typ"), "= C").unwrap();
+    fs::write(root.join("content/c.typ"), "= Separate group").unwrap();
+    // Unselected files must never be evaluated.
+    fs::write(
+        root.join("content/ignored.typ"),
+        "#panic(\"excluded article\")",
+    )
+    .unwrap();
+    fs::write(
+        root.join("content/summary.typ"),
+        r#"
+#let summary = (
+  (title: "Manual <group>", children: (
+    (path: "b.typ", title: "Navigation B"),
+    (path: "auto/", title: "Automatic", collapsed: true),
+    "a.typ",
+  )),
+  (title: "Manual <group>", collapsed: true, children: ("c.typ",)),
+)
+"#,
+    )
+    .unwrap();
+    let build = || {
+        Command::new(env!("CARGO_BIN_EXE_typst-ssg"))
+            .current_dir(&root)
+            .args(["--report"])
+            .output()
+            .unwrap()
+    };
+    let result = build();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let report: serde_json::Value =
+        serde_json::from_slice(&fs::read(root.join("public/ssg-report.json")).unwrap()).unwrap();
+    let pages = report["pages"].as_array().unwrap();
+    assert_eq!(pages.len(), 6);
+    let page = pages.iter().find(|p| p["path"] == "b/index.html").unwrap();
+    assert_eq!(page["title"], "Article B");
+    assert_eq!(page["navigation"]["title"], "Navigation B");
+    assert_eq!(
+        page["metadata"],
+        serde_json::json!([{ "title": "Article B" }])
+    );
+    for route in ["index.html", "b/index.html", "auto/nested/c/index.html"] {
+        let html = fs::read_to_string(root.join("public").join(route)).unwrap();
+        let start = html.find("<ul class=\"article-tree\">").unwrap();
+        let tree = &html[start..html[start..].find("</nav>").unwrap() + start];
+        let labels = [
+            "Manual &lt;group&gt;",
+            "Navigation B",
+            "Automatic",
+            "Auto A",
+            "nested",
+            ">C</a>",
+            ">Z</a>",
+            "Article A",
+        ];
+        let mut previous = 0;
+        for label in labels {
+            let index = tree
+                .find(label)
+                .unwrap_or_else(|| panic!("missing {label}: {tree}"));
+            assert!(index >= previous, "wrong order for {label}: {tree}");
+            previous = index;
+        }
+        assert!(!tree.contains("ignored"));
+        assert!(tree.contains("<details><summary>Automatic</summary>"));
+        assert!(tree.contains("<details open><summary>nested</summary>"));
+        assert!(tree.contains("<details open><summary>Manual &lt;group&gt;</summary>"));
+        assert!(tree.contains("<details><summary>Manual &lt;group&gt;</summary>"));
+        assert_eq!(
+            tree.matches("<summary>Manual &lt;group&gt;</summary>")
+                .count(),
+            2
+        );
+    }
+    let index = fs::read_to_string(root.join("public/index.html")).unwrap();
+    let listing = &index[index.find("class=\"index-group\"").unwrap()..];
+    assert!(listing.find("Navigation B").unwrap() < listing.find("Automatic").unwrap());
+    assert!(listing.find("Automatic").unwrap() < listing.rfind("Article A").unwrap());
+    assert!(!root.join("public/summary").exists());
+    assert!(!root.join("public/ignored").exists());
+
+    for (summary, expected) in [
+        (
+            "#let summary = (\"a.typ\", \"b.typ\", \"a.typ\")",
+            "more than once",
+        ),
+        ("#let summary = (\"missing.typ\",)", "path not found"),
+        (
+            "#let summary = ((path: \"auto\", collapsed: \"yes\"),)",
+            "collapsed must be a boolean",
+        ),
+        (
+            "#let summary = ((title: 123, children: (\"a.typ\",)),)",
+            "title must be a string",
+        ),
+    ] {
+        fs::write(root.join("content/summary.typ"), summary).unwrap();
+        let result = build();
+        assert!(!result.status.success());
+        assert!(
+            String::from_utf8_lossy(&result.stderr).contains(expected),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+    }
+    // The root shorthand includes all files while reserving summary.typ.
+    fs::remove_file(root.join("content/ignored.typ")).unwrap();
+    fs::write(root.join("content/summary.typ"), "#let summary = (\".\",)").unwrap();
+    let result = build();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    // Without a summary, discovery still works with the original metadata.
+    fs::remove_file(root.join("content/summary.typ")).unwrap();
+    let result = build();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let report: serde_json::Value =
+        serde_json::from_slice(&fs::read(root.join("public/ssg-report.json")).unwrap()).unwrap();
+    assert_eq!(report["pages"].as_array().unwrap().len(), 6);
+    assert!(
+        report["pages"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|p| p.get("navigation").is_none())
+    );
     fs::remove_dir_all(root).unwrap();
 }

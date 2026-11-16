@@ -1,3 +1,8 @@
+#let meta = (
+  lang: "zh",
+  year: 2026
+)
+
 = 关于 TikTok 案的几句杂谈
 
 == 被忘记的贸易协定

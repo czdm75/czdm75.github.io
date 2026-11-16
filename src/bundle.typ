@@ -1,4 +1,4 @@
-#for item in articles {
+#for (order, item) in articles.enumerate() {
   import item.source as article
   let meta = dictionary(article).at("meta", default: (:))
   document(item.output, title: meta.at("title", default: none))[
@@ -6,5 +6,8 @@
     #show: render
     #include item.source
     #metadata(meta) <ssg-page>
+    #if "navigation" in item {
+      [#metadata((..item.navigation, order: order)) <ssg-navigation>]
+    }
   ]
 }

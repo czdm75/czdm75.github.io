@@ -21,9 +21,18 @@ pub enum CodeRenderer {
     HighlightJs,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum Mode {
+    Site,
+    Raw,
+}
+
 #[derive(Debug, Parser)]
 #[command(version, about = "Compile a Typst bundle and inspect its pages")]
 pub struct Options {
+    /// Assemble a themed site, or export raw HTML and page JSON for debugging.
+    #[arg(long, value_enum, default_value = "site")]
+    pub mode: Mode,
     /// Content directory or an explicit Typst bundle entry point.
     #[arg(long, default_value = "content")]
     pub input: PathBuf,
